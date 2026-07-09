@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/request";
 import { loadUserData, saveUserData } from "@/lib/auth/server-store";
+import { toAuthErrorMessage } from "@/lib/auth/storage";
 import type { UserDataBundle } from "@/lib/sync/types";
 import { applyCorsHeaders } from "@/lib/api/security";
 
@@ -41,7 +42,6 @@ export async function POST(request: NextRequest) {
       syncedAt: new Date().toISOString(),
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "同步失敗";
-    return json(request, { error: message }, 500);
+    return json(request, { error: toAuthErrorMessage(err, "同步失敗") }, 500);
   }
 }

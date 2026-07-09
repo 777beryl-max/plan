@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { registerAccount } from "@/lib/auth/server-store";
+import { toAuthErrorMessage } from "@/lib/auth/storage";
 import {
   SESSION_COOKIE,
   createSessionToken,
@@ -35,7 +36,6 @@ export async function POST(request: NextRequest) {
 
     return json(request, { user });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "註冊失敗";
-    return json(request, { error: message }, 400);
+    return json(request, { error: toAuthErrorMessage(err, "註冊失敗") }, 400);
   }
 }

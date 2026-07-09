@@ -1,38 +1,15 @@
 import "server-only";
 
-import { promises as fs } from "fs";
-import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import type { UserDataBundle } from "@/lib/sync/types";
-import type { AuthUser, StoredAccount } from "@/lib/auth/types";
+import type { AuthUser } from "@/lib/auth/types";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const ACCOUNTS_FILE = path.join(DATA_DIR, "accounts.json");
-
-async function ensureDataDir() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-}
-
-async function readAccounts(): Promise<StoredAccount[]> {
-  await ensureDataDir();
-  try {
-    const raw = await fs.readFile(ACCOUNTS_FILE, "utf8");
-    const parsed = JSON.parse(raw) as StoredAccount[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-async function writeAccounts(accounts: StoredAccount[]) {
-  await ensureDataDir();
-  await fs.writeFile(ACCOUNTS_FILE, JSON.stringify(accounts, null, 2), "utf8");
-}
-
-function userDataPath(userId: string) {
-  return path.join(DATA_DIR, "users", `${userId}.json`);
-}
+import {
+  loadUserData as loadStoredUserData,
+  readAccounts,
+  saveUserData as saveStoredUserData,
+  writeAccounts,
+} from "@/lib/auth/storage";
 
 export async function registerAccount(
   email: string,
@@ -111,20 +88,9 @@ export async function getAccountById(userId: string): Promise<AuthUser | null> {
 }
 
 export async function saveUserData(userId: string, bundle: UserDataBundle): Promise<void> {
-  await ensureDataDir();
-  await fs.mkdir(path.join(DATA_DIR, "users"), { recursive: true });
-  await fs.writeFile(
-    userDataPath(userId),
-    JSON.stringify({ ...bundle, exportedAt: new Date().toISOString() }, null, 2),
-    "utf8"
-  );
+  await saveStoredUserData(userId, bundle);
 }
 
 export async function loadUserData(userId: string): Promise<UserDataBundle | null> {
-  try {
-    const raw = await fs.readFile(userDataPath(userId), "utf8");
-    return JSON.parse(raw) as UserDataBundle;
-  } catch {
-    return null;
-  }
+  return loadStoredUserData(userId);
 }
