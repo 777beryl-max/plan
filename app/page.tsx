@@ -1,65 +1,385 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { useMemo, type ReactNode } from "react";
+import { format } from "date-fns";
+import { zhTW } from "date-fns/locale";
+import { usePlanStore } from "@/stores/planStore";
+import { usePomodoroStore } from "@/stores/pomodoroStore";
+import { useCompanionStore } from "@/stores/companionStore";
+import { useAppStore } from "@/stores/appStore";
+import { useActiveGoals } from "@/hooks/useActiveGoals";
+import { getWeekStageIndex, WEEK_STAGE_LABELS } from "@/lib/rules/plan";
+import { PixelCard } from "@/components/ui/PixelCard";
+import { PixelButton } from "@/components/ui/PixelButton";
+import { CompanionSprite } from "@/components/companion/CompanionSprite";
+import { formatMinutes } from "@/lib/utils";
+import { COMPANION_SPECIES, type CompanionMood, type CompanionSpecies } from "@/lib/types";
+
+const MOOD_LABELS: Record<CompanionMood, string> = {
+  idle: "休息中",
+  happy: "開心",
+  cheering: "超興奮",
+  sleepy: "想睡了",
+};
+
+const PORTALS = [
+  { href: "/plan", label: "計畫", icon: "📜", desc: "月週日" },
+  { href: "/goals", label: "目標", icon: "⚔️", desc: "主線" },
+  { href: "/focus", label: "專注", icon: "⏱️", desc: "副本" },
+  { href: "/achievements", label: "戰報", icon: "🏆", desc: "成就" },
+] as const;
+
+export default function DashboardPage() {
+  const activeGoals = useActiveGoals();
+  const dayTasks = usePlanStore((s) => s.dayTasks);
+  const toggleTaskDone = usePlanStore((s) => s.toggleTaskDone);
+  const sessions = usePomodoroStore((s) => s.sessions);
+  const focusMinutes = usePomodoroStore((s) => s.focusMinutes);
+  const companion = useCompanionStore((s) => s.companion);
+  const profile = useAppStore((s) => s.profile);
+
+  const today = new Date();
+  const stageIndex = getWeekStageIndex(today);
+  const todayStats = useMemo(() => {
+    return usePomodoroStore.getState().getTodayStats();
+  }, [sessions, focusMinutes]);
+
+  const pendingTasks = dayTasks.filter((t) => t.status !== "done");
+  const doneTasks = dayTasks.filter((t) => t.status === "done");
+  const taskProgress = dayTasks.length > 0 ? Math.round((doneTasks.length / dayTasks.length) * 100) : 0;
+  const focusProgress = Math.min(Math.round((todayStats.minutes / 120) * 100), 100);
+  const speciesInfo = COMPANION_SPECIES.find((s) => s.id === companion?.species);
+  const displayName = profile?.displayName ?? "冒險者";
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="space-y-5">
+      <BaseGreeting
+        name={displayName}
+        dateLabel={format(today, "M月 d日 EEEE", { locale: zhTW })}
+        stageLabel={WEEK_STAGE_LABELS[stageIndex]}
+        stageNumber={stageIndex + 1}
+      />
+
+      <SquadScene
+        profile={profile}
+        displayName={displayName}
+        companion={companion}
+        speciesLabel={speciesInfo?.label}
+        moodLabel={companion ? MOOD_LABELS[companion.mood] : undefined}
+      />
+
+      <StatusBars
+        taskDone={doneTasks.length}
+        taskTotal={dayTasks.length}
+        taskProgress={taskProgress}
+        focusMinutes={todayStats.minutes}
+        focusSessions={todayStats.sessions}
+        focusProgress={focusProgress}
+      />
+
+      <QuickPortals />
+
+      <PixelCard title="今日討伐" accent>
+        {dayTasks.length === 0 ? (
+          <div className="text-center py-5 border-4 border-dashed border-[var(--pixel-border)] bg-[var(--pixel-bg)]/40">
+            <p className="text-2xl mb-2">🗺️</p>
+            <p className="font-body text-lg text-[var(--pixel-text-muted)]">今日尚無怪物</p>
+            <Link href="/plan" className="inline-block mt-3">
+              <PixelButton size="sm">前往日計畫</PixelButton>
+            </Link>
+          </div>
+        ) : (
+          <>
+            <ul className="space-y-2">
+              {pendingTasks.slice(0, 5).map((task) => (
+                <li
+                  key={task.id}
+                  className="flex items-center gap-3 border-4 border-[var(--pixel-border)] bg-[var(--pixel-bg)] p-4"
+                >
+                  <button
+                    onClick={() => toggleTaskDone(task.id)}
+                    className="shrink-0 w-11 h-11 flex items-center justify-center border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] text-xl hover:scale-105 transition-transform"
+                    title="擊敗怪物"
+                  >
+                    ⚔️
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-lg truncate">{task.title}</p>
+                    {task.weekPlanId && (
+                      <span className="text-label text-[var(--pixel-mp)]">主線</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+              {doneTasks.slice(0, 3).map((task) => (
+                <li
+                  key={task.id}
+                  className="flex items-center gap-3 border-4 border-[var(--pixel-success)]/30 bg-[var(--pixel-success)]/5 p-4 opacity-70"
+                >
+                  <span className="shrink-0 w-11 h-11 flex items-center justify-center text-xl text-[var(--pixel-success)]">
+                    ✓
+                  </span>
+                  <p className="font-body text-lg line-through text-[var(--pixel-text-muted)] truncate">
+                    {task.title}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            {(pendingTasks.length > 5 || doneTasks.length > 3) && (
+              <p className="font-body text-base text-[var(--pixel-text-muted)] mt-3 text-center">
+                還有更多任務待查看
+              </p>
+            )}
+            <Link href="/plan" className="block mt-3">
+              <PixelButton variant="ghost" size="sm" className="w-full">
+                查看完整日計畫 →
+              </PixelButton>
+            </Link>
+          </>
+        )}
+      </PixelCard>
+
+      <PixelCard title={`進行中主線 · ${activeGoals.length} 項`}>
+        {activeGoals.length === 0 ? (
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-body text-lg text-[var(--pixel-text-muted)]">尚未啟動冒險目標</p>
+            <Link href="/goals">
+              <PixelButton size="sm">啟動目標</PixelButton>
+            </Link>
+          </div>
+        ) : (
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            {activeGoals.map((goal, i) => (
+              <div
+                key={goal.id}
+                className="shrink-0 w-40 border-4 border-[var(--pixel-accent)]/50 bg-[var(--pixel-bg)] p-4"
+              >
+                <p className="text-label text-[var(--pixel-mp)] mb-1.5">Lv.{i + 1}</p>
+                <p className="font-body text-lg leading-snug line-clamp-2">{goal.title}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </PixelCard>
+
+      <Link href="/focus">
+        <PixelButton className="w-full" size="lg">
+          ⏱️ 進入專注副本
+        </PixelButton>
+      </Link>
+    </div>
+  );
+}
+
+function BaseGreeting({
+  name,
+  dateLabel,
+  stageLabel,
+  stageNumber,
+}: {
+  name: string;
+  dateLabel: string;
+  stageLabel: string;
+  stageNumber: number;
+}) {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "早安" : hour < 18 ? "午安" : "晚安";
+
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <p className="font-body text-base text-[var(--pixel-text-muted)]">{dateLabel}</p>
+        <h2 className="font-pixel text-xl text-[var(--pixel-text)] mt-1.5 leading-relaxed">
+          {greeting}，{name}
+        </h2>
+      </div>
+      <div className="text-right shrink-0">
+        <span className="text-label px-3 py-1.5 border-2 border-[var(--pixel-accent)] text-[var(--pixel-accent)] bg-[var(--pixel-accent)]/10">
+          關卡 {stageNumber}
+        </span>
+        <p className="font-body text-base text-[var(--pixel-text-muted)] mt-1.5">{stageLabel}</p>
+      </div>
+    </div>
+  );
+}
+
+function SquadScene({
+  profile,
+  displayName,
+  companion,
+  speciesLabel,
+  moodLabel,
+}: {
+  profile: { aiCharacterUrl?: string; displayName?: string } | null;
+  displayName: string;
+  companion: { species: CompanionSpecies; mood: CompanionMood; name: string } | null;
+  speciesLabel?: string;
+  moodLabel?: string;
+}) {
+  return (
+    <div className="space-y-3">
+      <p className="text-display text-[var(--pixel-accent)]">🏠 冒險者基地</p>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SquadSection
+          title="隊長"
+          borderAccent="accent"
+          image={
+            profile?.aiCharacterUrl ? (
+              <img
+                src={profile.aiCharacterUrl}
+                alt="冒險角色"
+                className="w-[7.5rem] h-[7.5rem] border-4 border-[var(--pixel-border)] object-cover"
+                style={{ imageRendering: "pixelated" }}
+              />
+            ) : (
+              <div className="w-[7.5rem] h-[7.5rem] border-4 border-dashed border-[var(--pixel-border)] bg-[var(--pixel-bg)]/60 flex items-center justify-center">
+                <span className="text-4xl opacity-50">🧙</span>
+              </div>
+            )
+          }
+          name={displayName}
+          detail={profile?.aiCharacterUrl ? undefined : "尚未覺醒"}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+        <SquadSection
+          title="夥伴"
+          borderAccent="mp"
+          image={
+            companion ? (
+              <CompanionSprite species={companion.species} mood={companion.mood} size="md" />
+            ) : (
+              <div className="w-24 h-24 border-4 border-dashed border-[var(--pixel-border)] bg-[var(--pixel-bg)]/60 flex items-center justify-center">
+                <span className="text-2xl opacity-40">🐾</span>
+              </div>
+            )
+          }
+          name={companion?.name ?? "尚未結伴"}
+          detail={
+            companion ? `${speciesLabel} · ${moodLabel}` : "還沒有夥伴"
+          }
+          action={
+            <Link href="/companion" className="inline-block mt-3">
+              <span className="text-label px-4 py-2 border-2 border-[var(--pixel-mp)] text-[var(--pixel-mp)] bg-[var(--pixel-mp)]/10 hover:bg-[var(--pixel-mp)]/20 transition-colors">
+                {companion ? "互動 →" : "選擇夥伴 →"}
+              </span>
+            </Link>
+          }
+        />
+      </div>
+    </div>
+  );
+}
+
+function SquadSection({
+  title,
+  borderAccent,
+  image,
+  name,
+  detail,
+  action,
+}: {
+  title: string;
+  borderAccent: "accent" | "mp";
+  image: ReactNode;
+  name: string;
+  detail?: string;
+  action?: ReactNode;
+}) {
+  const borderClass =
+    borderAccent === "accent"
+      ? "border-[var(--pixel-accent)]"
+      : "border-[var(--pixel-mp)]/70";
+
+  return (
+    <section
+      className={`pixel-card border-4 ${borderClass} bg-[var(--pixel-surface)] p-4 h-full`}
+    >
+      <p className="text-label text-[var(--pixel-text-muted)] mb-3">{title}</p>
+      <div className="flex items-center gap-4">
+        <div className="shrink-0">{image}</div>
+        <div className="min-w-0 flex-1">
+          <p className="font-pixel text-lg text-[var(--pixel-accent)] leading-snug break-words">
+            {name}
           </p>
+          {detail && (
+            <p className="font-body text-base text-[var(--pixel-text-muted)] mt-1">{detail}</p>
+          )}
+          {action}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+    </section>
+  );
+}
+
+function StatusBars({
+  taskDone,
+  taskTotal,
+  taskProgress,
+  focusMinutes,
+  focusSessions,
+  focusProgress,
+}: {
+  taskDone: number;
+  taskTotal: number;
+  taskProgress: number;
+  focusMinutes: number;
+  focusSessions: number;
+  focusProgress: number;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <div className="pixel-card border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-label text-[var(--pixel-hp)]">❤️ 討伐</span>
+          <span className="font-body text-lg text-[var(--pixel-text-muted)]">
+            {taskDone}/{taskTotal}
+          </span>
         </div>
-      </main>
+        <div className="h-4 border-2 border-[var(--pixel-border)] bg-[var(--pixel-bg)] overflow-hidden">
+          <div
+            className="h-full bg-[var(--pixel-hp)] transition-all duration-300"
+            style={{ width: `${taskProgress}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="pixel-card border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-label text-[var(--pixel-mp)]">💧 專注</span>
+          <span className="font-body text-lg text-[var(--pixel-text-muted)]">
+            {formatMinutes(focusMinutes)}
+          </span>
+        </div>
+        <div className="h-4 border-2 border-[var(--pixel-border)] bg-[var(--pixel-bg)] overflow-hidden">
+          <div
+            className="h-full bg-[var(--pixel-mp)] transition-all duration-300"
+            style={{ width: `${focusProgress}%` }}
+          />
+        </div>
+        <p className="font-body text-base text-[var(--pixel-text-muted)] mt-2">
+          {focusSessions} 次副本
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function QuickPortals() {
+  return (
+    <div className="grid grid-cols-4 gap-3">
+      {PORTALS.map((portal) => (
+        <Link
+          key={portal.href}
+          href={portal.href}
+          className="pixel-card flex flex-col items-center gap-2 border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-4 hover:border-[var(--pixel-accent)] hover:bg-[var(--pixel-accent)]/5 transition-colors text-center"
+        >
+          <span className="text-3xl leading-none">{portal.icon}</span>
+          <span className="text-label text-[var(--pixel-accent)]">{portal.label}</span>
+          <span className="font-body text-base text-[var(--pixel-text-muted)]">{portal.desc}</span>
+        </Link>
+      ))}
     </div>
   );
 }

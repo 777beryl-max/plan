@@ -36,6 +36,15 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Serwist
+public/sw.js
+public/sw.js.map
+
+# user data (auth accounts & sync)
+/data
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
