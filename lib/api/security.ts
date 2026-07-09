@@ -154,6 +154,9 @@ export function toClientErrorMessage(err: unknown, fallback = "服務暫時無�
   if (
     msg.includes("OPENAI_API_KEY") ||
     msg.includes("API Key") ||
+    msg.includes("API key") ||
+    msg.includes("Incorrect API key") ||
+    msg.includes("401") ||
     msg.includes("sk-")
   ) {
     return fallback;

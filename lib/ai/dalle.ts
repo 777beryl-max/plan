@@ -19,9 +19,12 @@ const DEFAULT_MODEL_ATTEMPTS: ImageModelAttempt[] = [
 ];
 
 export function createOpenAIClient(): OpenAI {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) {
     throw new Error("未設定 OPENAI_API_KEY，請在 .env.local 中配置");
+  }
+  if (!apiKey.startsWith("sk-")) {
+    throw new Error("OPENAI_API_KEY 格式不正確");
   }
   return new OpenAI({ apiKey });
 }
