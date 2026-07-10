@@ -82,7 +82,7 @@ export default function DashboardPage() {
 
       <PixelCard title="今日討伐" accent>
         {dayTasks.length === 0 ? (
-          <div className="text-center py-5 border-4 border-dashed border-[var(--pixel-border)] bg-[var(--pixel-bg)]/40">
+          <div className="text-center py-5 border-[3px] border-dashed border-[var(--pixel-border-soft)] rounded-2xl bg-white/60">
             <p className="text-2xl mb-2">🗺️</p>
             <p className="font-body text-lg text-[var(--pixel-text-muted)]">今日尚無怪物</p>
             <Link href="/plan" className="inline-block mt-3">
@@ -95,11 +95,11 @@ export default function DashboardPage() {
               {pendingTasks.slice(0, 5).map((task) => (
                 <li
                   key={task.id}
-                  className="flex items-center gap-3 border-4 border-[var(--pixel-border)] bg-[var(--pixel-bg)] p-4"
+                  className="quest-item flex items-center gap-3 p-3"
                 >
                   <button
                     onClick={() => toggleTaskDone(task.id)}
-                    className="shrink-0 w-11 h-11 flex items-center justify-center border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] text-xl hover:scale-105 transition-transform"
+                    className="shrink-0 w-10 h-10 flex items-center justify-center border-[3px] border-[var(--pixel-border)] rounded-xl bg-gradient-to-b from-[#ffe566] to-[var(--pixel-accent)] text-lg hover:scale-105 transition-transform"
                     title="擊敗怪物"
                   >
                     ⚔️
@@ -115,7 +115,7 @@ export default function DashboardPage() {
               {doneTasks.slice(0, 3).map((task) => (
                 <li
                   key={task.id}
-                  className="flex items-center gap-3 border-4 border-[var(--pixel-success)]/30 bg-[var(--pixel-success)]/5 p-4 opacity-70"
+                  className="quest-item quest-item-done flex items-center gap-3 p-3 opacity-80"
                 >
                   <span className="shrink-0 w-11 h-11 flex items-center justify-center text-xl text-[var(--pixel-success)]">
                     ✓
@@ -153,7 +153,7 @@ export default function DashboardPage() {
             {activeGoals.map((goal, i) => (
               <div
                 key={goal.id}
-                className="shrink-0 w-40 border-4 border-[var(--pixel-accent)]/50 bg-[var(--pixel-bg)] p-4"
+                className="shrink-0 w-40 border-[3px] border-[var(--pixel-gold-dark)] rounded-xl bg-gradient-to-b from-white to-[var(--pixel-surface-2)] p-3"
               >
                 <p className="text-label text-[var(--pixel-mp)] mb-1.5">Lv.{i + 1}</p>
                 <p className="font-body text-lg leading-snug line-clamp-2">{goal.title}</p>
@@ -189,16 +189,17 @@ function BaseGreeting({
   return (
     <div className="flex items-start justify-between gap-3">
       <div>
-        <p className="font-body text-base text-[var(--pixel-text-muted)]">{dateLabel}</p>
-        <h2 className="font-pixel text-xl text-[var(--pixel-text)] mt-1.5 leading-relaxed">
+        <p className="font-body text-sm text-[var(--pixel-text-muted)]">{dateLabel}</p>
+        <h2 className="text-display text-[var(--pixel-text)] mt-1">
           {greeting}，{name}
+          <span className="twinkle ml-1">✨</span>
         </h2>
       </div>
       <div className="text-right shrink-0">
-        <span className="text-label px-3 py-1.5 border-2 border-[var(--pixel-accent)] text-[var(--pixel-accent)] bg-[var(--pixel-accent)]/10">
+        <span className="stage-badge text-label px-3 py-1.5 inline-block">
           關卡 {stageNumber}
         </span>
-        <p className="font-body text-base text-[var(--pixel-text-muted)] mt-1.5">{stageLabel}</p>
+        <p className="font-body text-sm text-[var(--pixel-text-muted)] mt-1.5">{stageLabel}</p>
       </div>
     </div>
   );
@@ -219,7 +220,9 @@ function SquadScene({
 }) {
   return (
     <div className="space-y-3">
-      <p className="text-display text-[var(--pixel-accent)]">🏠 冒險者基地</p>
+      <p className="text-display text-[var(--pixel-accent)] flex items-center gap-2">
+        <span>🏠</span> 冒險者基地
+      </p>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <SquadSection
@@ -234,7 +237,7 @@ function SquadScene({
                 style={{ imageRendering: "pixelated" }}
               />
             ) : (
-              <div className="w-[7.5rem] h-[7.5rem] border-4 border-dashed border-[var(--pixel-border)] bg-[var(--pixel-bg)]/60 flex items-center justify-center">
+              <div className="w-[7.5rem] h-[7.5rem] border-[3px] border-dashed border-[var(--pixel-border-soft)] rounded-2xl bg-white/70 flex items-center justify-center">
                 <span className="text-4xl opacity-50">🧙</span>
               </div>
             )
@@ -250,7 +253,7 @@ function SquadScene({
             companion ? (
               <CompanionSprite species={companion.species} mood={companion.mood} size="md" />
             ) : (
-              <div className="w-24 h-24 border-4 border-dashed border-[var(--pixel-border)] bg-[var(--pixel-bg)]/60 flex items-center justify-center">
+              <div className="w-24 h-24 border-[3px] border-dashed border-[var(--pixel-border-soft)] rounded-2xl bg-white/70 flex items-center justify-center">
                 <span className="text-2xl opacity-40">🐾</span>
               </div>
             )
@@ -261,7 +264,7 @@ function SquadScene({
           }
           action={
             <Link href="/companion" className="inline-block mt-3">
-              <span className="text-label px-4 py-2 border-2 border-[var(--pixel-mp)] text-[var(--pixel-mp)] bg-[var(--pixel-mp)]/10 hover:bg-[var(--pixel-mp)]/20 transition-colors">
+              <span className="text-label px-4 py-2 rounded-full border-[3px] border-[var(--pixel-mp)] text-[var(--pixel-border)] bg-gradient-to-b from-[#b8f0eb] to-[var(--pixel-mp)] hover:brightness-105 transition-all">
                 {companion ? "互動 →" : "選擇夥伴 →"}
               </span>
             </Link>
@@ -289,18 +292,18 @@ function SquadSection({
 }) {
   const borderClass =
     borderAccent === "accent"
-      ? "border-[var(--pixel-accent)]"
-      : "border-[var(--pixel-mp)]/70";
+      ? "border-[var(--pixel-gold-dark)]"
+      : "border-[var(--pixel-mp)]";
 
   return (
     <section
-      className={`pixel-card border-4 ${borderClass} bg-[var(--pixel-surface)] p-4 h-full`}
+      className={`squad-panel pixel-card border-[3px] ${borderClass} p-4 h-full`}
     >
       <p className="text-label text-[var(--pixel-text-muted)] mb-3">{title}</p>
       <div className="flex items-center gap-4">
         <div className="shrink-0">{image}</div>
         <div className="min-w-0 flex-1">
-          <p className="font-pixel text-lg text-[var(--pixel-accent)] leading-snug break-words">
+          <p className="text-display text-[var(--pixel-accent)] break-words">
             {name}
           </p>
           {detail && (
@@ -329,36 +332,36 @@ function StatusBars({
   focusProgress: number;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="pixel-card border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-4">
-        <div className="flex items-center justify-between mb-3">
+    <div className="grid grid-cols-2 gap-3">
+      <div className="pixel-card border-[3px] border-[var(--pixel-border-soft)] p-4 rounded-2xl">
+        <div className="flex items-center justify-between mb-2">
           <span className="text-label text-[var(--pixel-hp)]">❤️ 討伐</span>
-          <span className="font-body text-lg text-[var(--pixel-text-muted)]">
+          <span className="font-body text-sm font-bold text-[var(--pixel-text-muted)]">
             {taskDone}/{taskTotal}
           </span>
         </div>
-        <div className="h-4 border-2 border-[var(--pixel-border)] bg-[var(--pixel-bg)] overflow-hidden">
+        <div className="game-stat-bar">
           <div
-            className="h-full bg-[var(--pixel-hp)] transition-all duration-300"
+            className="game-stat-fill game-stat-fill-hp"
             style={{ width: `${taskProgress}%` }}
           />
         </div>
       </div>
 
-      <div className="pixel-card border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-4">
-        <div className="flex items-center justify-between mb-3">
+      <div className="pixel-card border-[3px] border-[var(--pixel-border-soft)] p-4 rounded-2xl">
+        <div className="flex items-center justify-between mb-2">
           <span className="text-label text-[var(--pixel-mp)]">💧 專注</span>
-          <span className="font-body text-lg text-[var(--pixel-text-muted)]">
+          <span className="font-body text-sm font-bold text-[var(--pixel-text-muted)]">
             {formatMinutes(focusMinutes)}
           </span>
         </div>
-        <div className="h-4 border-2 border-[var(--pixel-border)] bg-[var(--pixel-bg)] overflow-hidden">
+        <div className="game-stat-bar">
           <div
-            className="h-full bg-[var(--pixel-mp)] transition-all duration-300"
+            className="game-stat-fill game-stat-fill-mp"
             style={{ width: `${focusProgress}%` }}
           />
         </div>
-        <p className="font-body text-base text-[var(--pixel-text-muted)] mt-2">
+        <p className="font-body text-sm text-[var(--pixel-text-muted)] mt-2">
           {focusSessions} 次副本
         </p>
       </div>
@@ -373,7 +376,7 @@ function QuickPortals() {
         <Link
           key={portal.href}
           href={portal.href}
-          className="pixel-card flex flex-col items-center gap-2 border-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-4 hover:border-[var(--pixel-accent)] hover:bg-[var(--pixel-accent)]/5 transition-colors text-center"
+          className="portal-tile pixel-card flex flex-col items-center gap-1.5 border-[3px] border-[var(--pixel-border-soft)] p-3 text-center"
         >
           <span className="text-3xl leading-none">{portal.icon}</span>
           <span className="text-label text-[var(--pixel-accent)]">{portal.label}</span>

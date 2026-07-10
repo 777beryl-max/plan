@@ -47,12 +47,12 @@ export default function FocusPage() {
       <PixelCard title="⏱️ 專注副本" accent>
         <div className="flex flex-col items-center py-6">
           <div
-            className="w-48 h-48 rounded-full flex items-center justify-center border-8 border-[var(--pixel-border)] pomodoro-ring"
+            className="w-48 h-48 flex items-center justify-center border-[6px] border-[var(--pixel-border)] pomodoro-ring shadow-lg"
             style={{ "--progress": `${progress}%` } as React.CSSProperties}
           >
-            <div className="w-40 h-40 rounded-full bg-[var(--pixel-surface)] flex flex-col items-center justify-center">
+            <div className="w-40 h-40 rounded-full bg-white flex flex-col items-center justify-center border-[3px] border-[var(--pixel-border-soft)]">
               <span
-                className="font-pixel text-2xl"
+                className="font-pixel text-xl"
                 style={{ color: phaseColor[phase] }}
               >
                 {formatTimer(secondsLeft)}
@@ -103,10 +103,10 @@ export default function FocusPage() {
               <li key={task.id}>
                 <button
                   onClick={() => setActiveTask(task)}
-                  className={`w-full text-left border-4 p-3 font-body text-lg transition-colors ${
+                  className={`w-full text-left quest-item p-3 font-body transition-colors ${
                     activeTaskId === task.id
-                      ? "border-[var(--pixel-accent)] bg-[var(--pixel-accent)]/10"
-                      : "border-[var(--pixel-border)] bg-[var(--pixel-bg)] hover:border-[var(--pixel-mp)]"
+                      ? "border-[var(--pixel-gold-dark)] bg-[var(--pixel-surface-2)]"
+                      : ""
                   }`}
                 >
                   ⚔️ {task.title}

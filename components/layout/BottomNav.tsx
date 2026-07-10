@@ -17,22 +17,20 @@ export function BottomNav() {
   if (pathname === "/onboarding") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)]">
-      <div className="flex max-w-2xl mx-auto">
+    <nav className="game-nav fixed bottom-0 left-0 right-0 z-40 px-2 pt-2 pb-3">
+      <div className="flex max-w-2xl mx-auto gap-1 px-1 pb-2">
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors ${
-                active
-                  ? "text-[var(--pixel-accent)] bg-[var(--pixel-bg)]"
-                  : "text-[var(--pixel-text-muted)] hover:text-[var(--pixel-text)]"
+              className={`game-nav-item flex-1 flex flex-col items-center py-2 gap-0.5 ${
+                active ? "active" : "text-[var(--pixel-text-muted)]"
               }`}
             >
-              <span className="text-2xl leading-none">{item.icon}</span>
-              <span className="text-label">{item.label}</span>
+              <span className="text-xl leading-none">{item.icon}</span>
+              <span className="text-label text-[10px]">{item.label}</span>
             </Link>
           );
         })}

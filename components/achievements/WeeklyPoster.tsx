@@ -23,7 +23,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
     if (!posterRef.current) return;
     const html2canvas = (await import("html2canvas")).default;
     const canvas = await html2canvas(posterRef.current, {
-      backgroundColor: "#2d1b4e",
+      backgroundColor: "#6ec6ff",
       scale: 2,
     });
     const link = document.createElement("a");
@@ -47,14 +47,14 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
     <div className="space-y-3">
       <div
         ref={posterRef}
-        className="border-4 border-[var(--pixel-accent)] p-6 bg-[var(--pixel-bg)]"
-        style={{ background: "linear-gradient(135deg, #2d1b4e 0%, #1a1a2e 100%)" }}
+        className="border-[3px] border-[var(--pixel-gold-dark)] p-6 rounded-2xl"
+        style={{ background: "linear-gradient(135deg, #fff9f0 0%, #ffe8b8 100%)" }}
       >
         <div className="text-center mb-4">
           <p className="text-label text-[var(--pixel-accent)]">
             人生冒險遊戲
           </p>
-          <h2 className="font-pixel text-sm text-white mt-2">
+          <h2 className="text-display text-[var(--pixel-text)] mt-2">
             第 {report.week} 週冒險戰報
           </h2>
           <p className="font-body text-base text-[var(--pixel-text-muted)] mt-1">

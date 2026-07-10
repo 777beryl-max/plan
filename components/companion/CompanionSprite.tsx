@@ -29,13 +29,13 @@ export function CompanionSprite({
 
   return (
     <div
-      className={`relative flex items-center justify-center border-4 border-[var(--pixel-border)] bg-[var(--pixel-bg)] ${frame.box} ${
+      className={`relative flex items-center justify-center border-[3px] border-[var(--pixel-border)] rounded-2xl bg-gradient-to-b from-white to-[var(--pixel-surface-2)] ${frame.box} ${
         animating ? "companion-bounce" : mood !== "sleepy" ? "companion-idle" : ""
       }`}
-      style={{ backgroundColor: info?.color ? `${info.color}22` : undefined }}
+      style={{ boxShadow: "3px 3px 0 var(--pixel-border-soft)" }}
     >
       <PixelCompanionArt species={species} mood={mood} size={frame.art} />
-      <span className="absolute -top-1 -right-1 border-2 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-0.5">
+      <span className="absolute -top-1 -right-1 border-2 border-[var(--pixel-border)] rounded-lg bg-white p-0.5">
         <MoodBadge mood={mood} size={size === "lg" ? 24 : 18} />
       </span>
     </div>

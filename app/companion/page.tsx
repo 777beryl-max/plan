@@ -43,10 +43,10 @@ export default function CompanionPage() {
               <button
                 key={s.id}
                 onClick={() => setSelectedSpecies(s.id)}
-                className={`flex flex-col items-center gap-1 p-3 border-4 transition-colors ${
+                className={`flex flex-col items-center gap-1 p-3 border-[3px] rounded-2xl transition-all ${
                   selectedSpecies === s.id
-                    ? "border-[var(--pixel-accent)] bg-[var(--pixel-accent)]/10"
-                    : "border-[var(--pixel-border)] bg-[var(--pixel-bg)]"
+                    ? "border-[var(--pixel-gold-dark)] bg-gradient-to-b from-white to-[var(--pixel-surface-2)] shadow-md scale-105"
+                    : "border-[var(--pixel-border-soft)] bg-white/80 hover:border-[var(--pixel-accent)]"
                 }`}
               >
                 <CompanionSprite species={s.id} mood="idle" size="sm" />

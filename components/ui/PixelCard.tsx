@@ -12,14 +12,14 @@ interface PixelCardProps {
 export function PixelCard({ title, children, className = "", accent }: PixelCardProps) {
   return (
     <div
-      className={`pixel-card bg-[var(--pixel-surface)] border-4 border-[var(--pixel-border)] p-5 ${
-        accent ? "border-[var(--pixel-accent)]" : ""
+      className={`pixel-card border-[3px] border-[var(--pixel-border)] p-5 ${
+        accent ? "pixel-card-accent border-[var(--pixel-gold-dark)]" : ""
       } ${className}`}
     >
       {title && (
-        <h3 className="font-pixel text-lg text-[var(--pixel-accent)] mb-4 leading-relaxed">
-          {title}
-        </h3>
+        <div className="pixel-card-header">
+          <h3 className="text-display text-[var(--pixel-accent)] flex-1">{title}</h3>
+        </div>
       )}
       {children}
     </div>

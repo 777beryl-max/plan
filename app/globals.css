@@ -1,21 +1,42 @@
 @import "tailwindcss";
 
+/* ── 可愛冒險遊戲調色盤 ── */
 :root {
-  --pixel-bg: #2d1b4e;
-  --pixel-surface: #1a1a2e;
-  --pixel-border: #0f0f1a;
-  --pixel-accent: #f7d51d;
-  --pixel-hp: #e74c3c;
-  --pixel-mp: #3498db;
-  --pixel-text: #ededed;
-  --pixel-text-muted: #9b8ec4;
-  --pixel-success: #2ecc71;
+  --sky-top: #6ec6ff;
+  --sky-mid: #9edcff;
+  --sky-bottom: #c8ecff;
+  --cloud: rgba(255, 255, 255, 0.75);
+
+  --pixel-bg: #6ec6ff;
+  --pixel-surface: #fff9f0;
+  --pixel-surface-2: #fff0d4;
+  --pixel-border: #6b4f3a;
+  --pixel-border-soft: #c4a882;
+
+  --pixel-accent: #ff9f43;
+  --pixel-accent-2: #ff6b9d;
+  --pixel-gold: #ffd93d;
+  --pixel-gold-dark: #e8b923;
+
+  --pixel-hp: #ff6b9d;
+  --pixel-mp: #4ecdc4;
+  --pixel-grass: #7ed957;
+
+  --pixel-text: #5d4037;
+  --pixel-text-muted: #9a7b5c;
+  --pixel-text-light: #fff8ee;
+
+  --pixel-inset: rgba(255, 255, 255, 0.72);
+
+  --shadow-game: 3px 3px 0 var(--pixel-border);
+  --shadow-game-lg: 5px 5px 0 var(--pixel-border);
+  --shadow-inset: inset 2px 2px 0 rgba(107, 79, 58, 0.15);
 }
 
 @theme inline {
   --color-background: var(--pixel-bg);
   --color-foreground: var(--pixel-text);
-  --font-sans: var(--font-vt323);
+  --font-sans: var(--font-game);
   --font-mono: var(--font-press-start);
 }
 
@@ -28,85 +49,255 @@
   image-rendering: crisp-edges;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--pixel-bg);
   color: var(--pixel-text);
-  font-family: var(--font-vt323), monospace;
-  font-size: 1.125rem;
-  line-height: 1.5;
+  font-family: var(--font-game), "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+/* 冒險世界背景：天空漸層 + 雲朵 */
+.adventure-world {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
+  position: relative;
+}
+
+.adventure-world::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(ellipse 120px 40px at 15% 12%, var(--cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 90px 32px at 22% 14%, var(--cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 140px 45px at 78% 8%, var(--cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 100px 35px at 85% 11%, var(--cloud) 0%, transparent 70%),
+    radial-gradient(ellipse 80px 28px at 50% 18%, var(--cloud) 0%, transparent 70%),
+    radial-gradient(circle 3px at 10% 25%, var(--pixel-gold) 0%, transparent 100%),
+    radial-gradient(circle 2px at 88% 20%, var(--pixel-gold) 0%, transparent 100%),
+    radial-gradient(circle 2px at 72% 30%, var(--pixel-gold) 0%, transparent 100%);
+}
+
+.adventure-content {
+  position: relative;
+  z-index: 1;
 }
 
 .font-pixel {
   font-family: var(--font-press-start), monospace;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 .font-body {
-  font-family: var(--font-vt323), monospace;
-  font-size: 1.125rem;
-  line-height: 1.45;
+  font-family: var(--font-game), "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.5;
 }
 
-/* 全站可讀性字型尺度 */
 .text-label {
   font-family: var(--font-press-start), monospace;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   line-height: 1.6;
+  letter-spacing: 0.02em;
 }
 
 .text-caption {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   line-height: 1.45;
 }
 
 .text-display {
-  font-family: var(--font-press-start), monospace;
-  font-size: 1.125rem;
-  line-height: 1.6;
+  font-family: var(--font-game), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
+/* ── 遊戲 UI 元件 ── */
 .pixel-btn {
-  border: 4px solid var(--pixel-border);
-  box-shadow: 4px 4px 0 var(--pixel-border);
-  transition: transform 0.1s, box-shadow 0.1s;
+  border: 3px solid var(--pixel-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-game);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
   cursor: pointer;
+}
+
+.pixel-btn:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 
 .pixel-btn:active:not(:disabled) {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--pixel-border);
+  box-shadow: 1px 1px 0 var(--pixel-border);
 }
 
 .pixel-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .pixel-card {
-  box-shadow: 6px 6px 0 var(--pixel-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-game-lg);
+  background: var(--pixel-surface);
+}
+
+.pixel-card-accent {
+  border-color: var(--pixel-gold-dark) !important;
+  background: linear-gradient(180deg, #fffef8 0%, var(--pixel-surface-2) 100%);
+}
+
+.pixel-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px dashed var(--pixel-border-soft);
+}
+
+.pixel-card-header::before,
+.pixel-card-header::after {
+  content: "◆";
+  font-size: 0.5rem;
+  color: var(--pixel-gold);
 }
 
 .pixel-input {
-  box-shadow: inset 2px 2px 0 var(--pixel-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-inset);
 }
 
+/* 遊戲橫幅標題列 */
+.game-banner {
+  background: linear-gradient(180deg, #fff9f0 0%, #ffe8b8 100%);
+  border-bottom: 4px solid var(--pixel-border);
+  box-shadow: 0 4px 0 rgba(107, 79, 58, 0.2);
+}
+
+.game-banner-title {
+  color: var(--pixel-accent);
+  text-shadow: 2px 2px 0 var(--pixel-border-soft);
+}
+
+/* 底部冒險選單 */
+.game-nav {
+  background: linear-gradient(180deg, #fff9f0 0%, #ffefc8 100%);
+  border-top: 4px solid var(--pixel-border);
+  box-shadow: 0 -4px 12px rgba(107, 79, 58, 0.12);
+  border-radius: 20px 20px 0 0;
+}
+
+.game-nav-item {
+  border-radius: 14px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.game-nav-item.active {
+  background: linear-gradient(180deg, #ffe566 0%, #ffb347 100%);
+  color: var(--pixel-border);
+  box-shadow: inset 0 -3px 0 var(--pixel-gold-dark);
+  transform: translateY(-4px);
+}
+
+.game-nav-item:not(.active):hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 狀態條（HP / MP） */
+.game-stat-bar {
+  height: 1.125rem;
+  border: 3px solid var(--pixel-border);
+  border-radius: 8px;
+  background: rgba(107, 79, 58, 0.08);
+  overflow: hidden;
+}
+
+.game-stat-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.game-stat-fill-hp {
+  background: linear-gradient(180deg, #ff8fab 0%, var(--pixel-hp) 100%);
+}
+
+.game-stat-fill-mp {
+  background: linear-gradient(180deg, #7ee8e0 0%, var(--pixel-mp) 100%);
+}
+
+/* 傳送門方塊 */
+.portal-tile {
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fffef9 0%, #fff3d0 100%);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.portal-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 8px 0 var(--pixel-border);
+}
+
+/* 隊伍面板 */
+.squad-panel {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fffef8 0%, #fff5e0 100%);
+}
+
+/* 關卡徽章 */
+.stage-badge {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffe566 0%, #ffb347 100%);
+  border: 3px solid var(--pixel-border);
+  box-shadow: 2px 2px 0 var(--pixel-border);
+  color: var(--pixel-border);
+}
+
+/* 任務列表項 */
+.quest-item {
+  border-radius: 12px;
+  background: #fffef9;
+  border: 3px solid var(--pixel-border-soft);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.quest-item:hover {
+  border-color: var(--pixel-accent);
+}
+
+.quest-item-done {
+  background: rgba(107, 203, 119, 0.12);
+  border-color: var(--pixel-success);
+}
+
+/* 動畫 */
 .companion-bounce {
   animation: companion-bounce 0.6s ease;
 }
 
 @keyframes companion-bounce {
   0%, 100% { transform: translateY(0); }
-  30% { transform: translateY(-12px) scale(1.1); }
+  30% { transform: translateY(-12px) scale(1.08); }
   60% { transform: translateY(-4px); }
 }
 
 .companion-idle {
-  animation: companion-idle 2s ease-in-out infinite;
+  animation: companion-idle 2.2s ease-in-out infinite;
 }
 
 @keyframes companion-idle {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  50% { transform: translateY(-5px); }
 }
 
 .task-done-sparkle {
@@ -115,13 +306,32 @@ body {
 
 @keyframes sparkle {
   0% { transform: scale(1); }
-  50% { transform: scale(1.3); filter: brightness(1.5); }
+  50% { transform: scale(1.25); filter: brightness(1.3); }
   100% { transform: scale(1); }
 }
 
 .pomodoro-ring {
+  border-radius: 999px;
   background: conic-gradient(
-    var(--pixel-accent) var(--progress, 0%),
-    var(--pixel-surface) var(--progress, 0%)
+    var(--pixel-gold) var(--progress, 0%),
+    var(--pixel-surface-2) var(--progress, 0%)
   );
+}
+
+.float-gentle {
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.twinkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }

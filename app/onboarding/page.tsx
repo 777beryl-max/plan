@@ -29,8 +29,8 @@ export default function OnboardingPage() {
 
   if (profile?.onboardingDone) {
     return (
-      <div className="min-h-screen bg-[var(--pixel-bg)] flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+      <div className="adventure-world min-h-screen flex items-center justify-center p-4">
+        <div className="adventure-content w-full max-w-md">
           <PixelCard title="引導已完成" accent>
             <p className="font-body text-lg text-[var(--pixel-text-muted)] mb-4 text-center">
               你已經完成冒險者引導，可以直接進入首頁。
@@ -106,10 +106,11 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--pixel-bg)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+    <div className="adventure-world min-h-screen flex items-center justify-center p-4">
+      <div className="adventure-content w-full max-w-md space-y-4">
         <div className="text-center mb-6">
-          <h1 className="font-pixel text-lg sm:text-xl text-[var(--pixel-accent)] leading-relaxed">
+          <p className="text-3xl mb-2 float-gentle">🗡️</p>
+          <h1 className="game-banner-title font-pixel text-sm leading-relaxed">
             人生冒險遊戲
           </h1>
           <p className="font-body text-lg text-[var(--pixel-text-muted)] mt-2">

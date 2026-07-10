@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Press_Start_2P, VT323 } from "next/font/google";
+import { Press_Start_2P, ZCOOL_KuaiLe } from "next/font/google";
 import "./globals.css";
 import { ConditionalShell } from "@/components/layout/ConditionalShell";
 import { PwaProvider } from "@/components/providers/PwaProvider";
@@ -11,10 +11,10 @@ const pressStart = Press_Start_2P({
   variable: "--font-press-start",
 });
 
-const vt323 = VT323({
+const gameFont = ZCOOL_KuaiLe({
   weight: "400",
   subsets: ["latin"],
-  variable: "--font-vt323",
+  variable: "--font-game",
 });
 
 const APP_NAME = "人生冒險遊戲";
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2d1b4e",
+  themeColor: "#6ec6ff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -58,7 +58,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-TW" className={`${pressStart.variable} ${vt323.variable} h-full`}>
+    <html lang="zh-TW" className={`${pressStart.variable} ${gameFont.variable} h-full`}>
       <body className="min-h-full">
         <PwaProvider>
           <StoreInitializer>

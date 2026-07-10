@@ -13,7 +13,7 @@ export function PixelInput({ label, className = "", ...props }: PixelInputProps)
         <span className="text-label text-[var(--pixel-accent)]">{label}</span>
       )}
       <input
-        className={`pixel-input w-full bg-[var(--pixel-bg)] border-4 border-[var(--pixel-border)] px-4 py-3 text-[var(--pixel-text)] font-body text-lg focus:outline-none focus:border-[var(--pixel-accent)] ${className}`}
+        className={`pixel-input w-full bg-white border-[3px] border-[var(--pixel-border-soft)] px-4 py-3 text-[var(--pixel-text)] font-body text-lg focus:outline-none focus:border-[var(--pixel-accent)] rounded-[10px] ${className}`}
         {...props}
       />
     </label>

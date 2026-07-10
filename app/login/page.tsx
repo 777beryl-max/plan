@@ -39,13 +39,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--pixel-bg)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+    <div className="adventure-world min-h-screen flex items-center justify-center p-4">
+      <div className="adventure-content w-full max-w-md space-y-4">
         <div className="text-center">
-          <h1 className="font-pixel text-lg text-[var(--pixel-accent)] leading-relaxed">
+          <p className="text-4xl mb-2 float-gentle">⚔️</p>
+          <h1 className="game-banner-title font-pixel text-base leading-relaxed">
             人生冒險遊戲
           </h1>
-          <p className="font-body text-base text-[var(--pixel-text-muted)] mt-2">
+          <p className="font-body text-sm text-[var(--pixel-text-muted)] mt-2">
             登入後自動同步你的冒險記錄
           </p>
         </div>
