@@ -41,7 +41,7 @@ export default function AchievementsPage() {
           願你的每一步專注，都讓人生目標更接近現實。本週也請繼續加油，冒險者！
         </p>
         <PixelButton onClick={handleGenerate} disabled={generating} className="w-full">
-          {generating ? "生成中..." : `生成本週戰報（第 ${currentWeek} 週）`}
+          {generating ? "生成中..." : "本週戰報"}
         </PixelButton>
       </PixelCard>
 
