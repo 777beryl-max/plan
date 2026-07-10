@@ -251,12 +251,9 @@ export function DayView() {
 
           <PixelCard title="📜 支線任務">
 
-            <div className="flex items-center justify-between gap-2 mb-3 -mt-1">
-
-              <p className="font-body text-base text-[var(--pixel-text-muted)]">
-
+            <div className="mb-3 -mt-1 flex items-center justify-between gap-2">
+              <p className="min-w-0 flex-1 font-body text-base text-[var(--pixel-text-muted)]">
                 自行安排的額外打怪任務
-
               </p>
 
               <PixelButton

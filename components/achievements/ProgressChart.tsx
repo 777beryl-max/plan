@@ -26,12 +26,12 @@ export function ProgressChart({ planned, completed }: ProgressChartProps) {
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <XAxis
             dataKey="name"
-            tick={{ fill: "#ededed", fontSize: 12, fontFamily: "monospace" }}
-            axisLine={{ stroke: "#0f0f1a" }}
+            tick={{ fill: "#7a6552", fontSize: 12, fontFamily: "monospace" }}
+            axisLine={{ stroke: "#6b4f3a" }}
           />
           <YAxis
-            tick={{ fill: "#9b8ec4", fontSize: 10, fontFamily: "monospace" }}
-            axisLine={{ stroke: "#0f0f1a" }}
+            tick={{ fill: "#7a6552", fontSize: 10, fontFamily: "monospace" }}
+            axisLine={{ stroke: "#6b4f3a" }}
             allowDecimals={false}
           />
           <Bar dataKey="value" radius={0}>

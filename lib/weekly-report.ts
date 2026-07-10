@@ -4,7 +4,12 @@ import {
   endOfWeek,
   getISOWeek,
   getYear,
+  setISOWeek,
+  setISOWeekYear,
+  startOfISOWeek,
+  endOfISOWeek,
 } from "date-fns";
+import { zhTW } from "date-fns/locale";
 import type { WeeklyReport } from "@/lib/types";
 import {
   getDayTasksInRange,
@@ -77,6 +82,15 @@ export async function generateWeeklyReport(
 export function getCompletionRate(planned: number, completed: number): number {
   if (planned === 0) return 0;
   return Math.round((completed / planned) * 100);
+}
+
+export function formatWeekDateRange(year: number, week: number): string {
+  const anchor = setISOWeek(setISOWeekYear(new Date(), year), week);
+  const weekStart = startOfISOWeek(anchor);
+  const weekEnd = endOfISOWeek(anchor);
+  const startLabel = format(weekStart, "yyyy年M月d日", { locale: zhTW });
+  const endLabel = format(weekEnd, "yyyy年M月d日", { locale: zhTW });
+  return `${startLabel} – ${endLabel}`;
 }
 
 export function getShareText(report: WeeklyReport): string {

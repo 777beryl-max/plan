@@ -205,14 +205,43 @@ body {
   background: linear-gradient(180deg, #fff9f0 0%, #ffe8b8 100%);
   border-bottom: 4px solid var(--pixel-border);
   box-shadow: 0 4px 0 rgba(107, 79, 58, 0.2);
+  padding: clamp(0.625rem, 2.5vw, 0.875rem) clamp(0.75rem, 4vw, 1.25rem);
+}
+
+.game-banner-inner {
+  max-width: 42rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.5rem, 2.5vw, 1rem);
+}
+
+.game-banner-brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.375rem, 2vw, 0.75rem);
+  min-width: 0;
+  flex: 1;
+}
+
+.game-banner-icon {
+  font-size: clamp(1.375rem, 5vw, 2rem);
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .game-banner-title {
   color: var(--pixel-accent);
   font-family: var(--font-body), sans-serif;
   font-weight: 800;
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 4.2vw, 1.5rem);
   letter-spacing: 0.02em;
+  line-height: 1.25;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 底部冒險選單 */

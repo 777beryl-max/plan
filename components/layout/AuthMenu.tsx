@@ -13,7 +13,7 @@ export function AuthMenu() {
   const syncLabel = syncing ? "同步中..." : lastSyncedAt ? "已同步" : "同步";
 
   return (
-    <div className="flex flex-wrap justify-end gap-1 shrink-0">
+    <div className="flex flex-wrap justify-end gap-1 sm:gap-1.5 shrink-0 max-w-[58%] sm:max-w-none">
       <HeaderActionLink href="/settings">設定</HeaderActionLink>
         {user && (
           <>
