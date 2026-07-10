@@ -2,13 +2,8 @@
 
 import type { CompanionMood, CompanionSpecies } from "@/lib/types";
 import { COMPANION_SPECIES } from "@/lib/types";
-
-const MOOD_EMOJI: Record<CompanionMood, string> = {
-  idle: "😐",
-  happy: "😊",
-  cheering: "🎉",
-  sleepy: "😴",
-};
+import { PixelCompanionArt } from "@/components/companion/PixelCompanionArt";
+import { MoodBadge } from "@/components/companion/MoodBadge";
 
 interface CompanionSpriteProps {
   species: CompanionSpecies;
@@ -17,6 +12,12 @@ interface CompanionSpriteProps {
   animating?: boolean;
 }
 
+const FRAME_SIZES = {
+  sm: { box: "w-16 h-16", art: 40 },
+  md: { box: "w-24 h-24", art: 64 },
+  lg: { box: "w-32 h-32", art: 88 },
+};
+
 export function CompanionSprite({
   species,
   mood,
@@ -24,26 +25,19 @@ export function CompanionSprite({
   animating,
 }: CompanionSpriteProps) {
   const info = COMPANION_SPECIES.find((s) => s.id === species);
-  const emoji = info?.emoji ?? "🐾";
-  const moodEmoji = MOOD_EMOJI[mood];
-
-  const sizeClasses = {
-    sm: "text-4xl w-16 h-16",
-    md: "text-6xl w-24 h-24",
-    lg: "text-8xl w-32 h-32",
-  };
+  const frame = FRAME_SIZES[size];
 
   return (
     <div
-      className={`relative flex items-center justify-center border-4 border-[var(--pixel-border)] bg-[var(--pixel-bg)] ${sizeClasses[size]} ${
+      className={`relative flex items-center justify-center border-4 border-[var(--pixel-border)] bg-[var(--pixel-bg)] ${frame.box} ${
         animating ? "companion-bounce" : mood !== "sleepy" ? "companion-idle" : ""
       }`}
       style={{ backgroundColor: info?.color ? `${info.color}22` : undefined }}
     >
-      <span role="img" aria-label={info?.label}>
-        {emoji}
+      <PixelCompanionArt species={species} mood={mood} size={frame.art} />
+      <span className="absolute -top-1 -right-1 border-2 border-[var(--pixel-border)] bg-[var(--pixel-surface)] p-0.5">
+        <MoodBadge mood={mood} size={size === "lg" ? 24 : 18} />
       </span>
-      <span className="absolute -top-2 -right-2 text-lg">{moodEmoji}</span>
     </div>
   );
 }

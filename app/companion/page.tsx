@@ -8,6 +8,7 @@ import { PixelCard } from "@/components/ui/PixelCard";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { PixelInput } from "@/components/ui/PixelInput";
 import { CompanionSprite } from "@/components/companion/CompanionSprite";
+import { MoodBadge, MOOD_LABELS } from "@/components/companion/MoodBadge";
 
 export default function CompanionPage() {
   const companion = useCompanionStore((s) => s.companion);
@@ -48,7 +49,7 @@ export default function CompanionPage() {
                     : "border-[var(--pixel-border)] bg-[var(--pixel-bg)]"
                 }`}
               >
-                <span className="text-3xl">{s.emoji}</span>
+                <CompanionSprite species={s.id} mood="idle" size="sm" />
                 <span className="text-label">{s.label}</span>
               </button>
             ))}
@@ -118,11 +119,22 @@ export default function CompanionPage() {
       </PixelCard>
 
       <PixelCard title="夥伴狀態說明">
-        <ul className="font-body text-base text-[var(--pixel-text-muted)] space-y-1">
-          <li>😴 sleepy — 今日尚未完成任務</li>
-          <li>😐 idle — 完成了一些任務</li>
-          <li>😊 happy — 表現不錯！</li>
-          <li>🎉 cheering — 超棒的一天！</li>
+        <ul className="font-body text-base text-[var(--pixel-text-muted)] space-y-2">
+          {(["sleepy", "idle", "happy", "cheering"] as const).map((mood) => (
+            <li key={mood} className="flex items-center gap-2">
+              <MoodBadge mood={mood} size={18} />
+              <span>
+                {MOOD_LABELS[mood]} —{" "}
+                {mood === "sleepy"
+                  ? "今日尚未完成任務"
+                  : mood === "idle"
+                    ? "完成了一些任務"
+                    : mood === "happy"
+                      ? "表現不錯！"
+                      : "超棒的一天！"}
+              </span>
+            </li>
+          ))}
         </ul>
       </PixelCard>
     </div>

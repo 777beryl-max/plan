@@ -23,6 +23,11 @@
   image-rendering: pixelated;
 }
 
+.pixel-sprite svg {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
 body {
   background: var(--pixel-bg);
   color: var(--pixel-text);

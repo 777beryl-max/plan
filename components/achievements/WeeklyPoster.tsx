@@ -6,7 +6,7 @@ import { getCompletionRate } from "@/lib/weekly-report";
 import { ProgressChart } from "./ProgressChart";
 import { useAppStore } from "@/stores/appStore";
 import { useCompanionStore } from "@/stores/companionStore";
-import { COMPANION_SPECIES } from "@/lib/types";
+import { CompanionSprite } from "@/components/companion/CompanionSprite";
 
 interface WeeklyPosterProps {
   report: WeeklyReport;
@@ -18,7 +18,6 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
   const profile = useAppStore((s) => s.profile);
   const companion = useCompanionStore((s) => s.companion);
   const rate = getCompletionRate(report.plannedCount, report.completedCount);
-  const speciesInfo = COMPANION_SPECIES.find((s) => s.id === companion?.species);
 
   const handleDownload = async () => {
     if (!posterRef.current) return;
@@ -73,8 +72,12 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
             />
           )}
           {companion && (
-            <div className="text-center">
-              <span className="text-4xl">{speciesInfo?.emoji}</span>
+            <div className="text-center flex flex-col items-center gap-1">
+              <CompanionSprite
+                species={companion.species}
+                mood={companion.mood}
+                size="sm"
+              />
               <p className="font-body text-base text-[var(--pixel-text-muted)]">
                 {companion.name}
               </p>
