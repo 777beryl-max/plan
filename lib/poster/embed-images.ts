@@ -70,6 +70,11 @@ async function urlToDataUrl(url: string): Promise<string | null> {
   }
 }
 
+/** Resolve a poster image to an embeddable data URL (for display and PNG export). */
+export async function resolvePosterImageUrl(url: string): Promise<string | null> {
+  return urlToDataUrl(url);
+}
+
 /** Inline poster images as data URLs so mobile PNG export always draws them. */
 export async function embedPosterImages(element: HTMLElement) {
   const nodes = element.querySelectorAll<HTMLImageElement>("img[data-poster-char]");

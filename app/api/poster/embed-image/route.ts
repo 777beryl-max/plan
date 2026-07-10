@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth/request";
+import { loadUserData } from "@/lib/auth/server-store";
+import { inlineRemoteImageUrl } from "@/lib/ai/inline-image";
 
-const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
-
-function isAllowedImageUrl(url: URL): boolean {
+function isPublicAiImageHost(url: URL): boolean {
   if (url.protocol !== "https:") return false;
 
   const host = url.hostname.toLowerCase();
   return (
+    host === "cdn.openai.com" ||
     host.endsWith(".openai.com") ||
-    host.endsWith(".blob.core.windows.net") ||
     host.endsWith(".oaiusercontent.com") ||
+    host.endsWith(".blob.core.windows.net") ||
     host.endsWith(".azure.com")
   );
+}
+
+async function profileAvatarUrl(userId: string): Promise<string | undefined> {
+  const data = await loadUserData(userId);
+  return data?.userProfiles?.[0]?.aiCharacterUrl;
 }
 
 export async function GET(request: NextRequest) {
@@ -27,27 +34,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "無效的 url" }, { status: 400 });
   }
 
-  if (!isAllowedImageUrl(target)) {
+  if (target.protocol !== "https:" && !raw.startsWith("data:")) {
+    return NextResponse.json({ error: "僅支援 https 圖片" }, { status: 400 });
+  }
+
+  const user = await getSessionUser();
+  const ownsAvatar = user ? (await profileAvatarUrl(user.id)) === raw : false;
+
+  if (!ownsAvatar && !isPublicAiImageHost(target)) {
     return NextResponse.json({ error: "不允許的圖片來源" }, { status: 400 });
   }
 
   try {
-    const response = await fetch(target.toString(), { cache: "no-store" });
-    if (!response.ok) {
-      return NextResponse.json({ error: "無法取得圖片" }, { status: 502 });
-    }
-
-    const contentType = response.headers.get("content-type") ?? "image/png";
-    if (!contentType.startsWith("image/")) {
-      return NextResponse.json({ error: "非圖片格式" }, { status: 400 });
-    }
-
-    const buffer = Buffer.from(await response.arrayBuffer());
-    if (buffer.byteLength > MAX_IMAGE_BYTES) {
-      return NextResponse.json({ error: "圖片過大" }, { status: 400 });
-    }
-
-    const dataUrl = `data:${contentType};base64,${buffer.toString("base64")}`;
+    const dataUrl = await inlineRemoteImageUrl(raw);
     return NextResponse.json({ dataUrl });
   } catch {
     return NextResponse.json({ error: "圖片轉換失敗" }, { status: 502 });

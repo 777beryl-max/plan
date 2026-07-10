@@ -9,6 +9,7 @@ import { useCompanionStore } from "@/stores/companionStore";
 import { COMPANION_IMAGE_SRC, COMPANION_IMAGE_LABEL } from "@/lib/companion/companion-images";
 import { capturePosterPng } from "@/lib/poster/capture";
 import { copyPosterPngToClipboard, sharePosterPng } from "@/lib/poster/share";
+import { usePosterImageSrc } from "@/lib/poster/use-poster-image-src";
 import {
   POSTER_COLORS,
   POSTER_CHARACTER_SIZE,
@@ -108,10 +109,13 @@ function PosterCharacterFrame({
   alt: string;
   fallback: string;
 }) {
+  const [broken, setBroken] = useState(false);
   const shellStyle = posterPixelFrameShellStyle(
     POSTER_CHAR_COLUMN_WIDTH,
     POSTER_CHARACTER_SIZE + POSTER_FRAME_SHADOW.y
   );
+
+  const showImage = Boolean(src) && !broken;
 
   return (
     <div data-poster-frame style={shellStyle}>
@@ -120,12 +124,14 @@ function PosterCharacterFrame({
         style={posterPixelFrameShadowStyle(POSTER_CHARACTER_SIZE, POSTER_FRAME_RADIUS)}
       />
       <div style={POSTER_PIXEL_FRAME_FACE_STYLE}>
-        {src ? (
+        {showImage ? (
           <img
             data-poster-char
             data-poster-src={src}
             src={src}
             alt={alt}
+            referrerPolicy="no-referrer"
+            onError={() => setBroken(true)}
             style={POSTER_CHARACTER_IMAGE_STYLE}
           />
         ) : (
@@ -239,9 +245,14 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
   const posterRef = useRef<HTMLDivElement>(null);
   const shareBlobRef = useRef<Blob | null>(null);
   const profile = useAppStore((s) => s.profile);
+  const updateProfile = useAppStore((s) => s.updateProfile);
   const companion = useCompanionStore((s) => s.companion);
   const displayName = profile?.displayName ?? "冒險者";
   const rate = getCompletionRate(report.plannedCount, report.completedCount);
+  const captainSrc = usePosterImageSrc(profile?.aiCharacterUrl);
+  const companionSrc = usePosterImageSrc(
+    companion ? COMPANION_IMAGE_SRC[companion.species] : undefined
+  );
   const [sharing, setSharing] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
@@ -249,7 +260,14 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
 
   useEffect(() => {
     shareBlobRef.current = null;
-  }, [profile?.aiCharacterUrl, companion?.species, companion?.name, report.id]);
+  }, [captainSrc, companionSrc, companion?.name, report.id]);
+
+  useEffect(() => {
+    const raw = profile?.aiCharacterUrl;
+    if (!raw || raw.startsWith("data:")) return;
+    if (!captainSrc?.startsWith("data:")) return;
+    void updateProfile({ aiCharacterUrl: captainSrc });
+  }, [captainSrc, profile?.aiCharacterUrl, updateProfile]);
 
   const ensurePosterBlob = async () => {
     if (shareBlobRef.current) return shareBlobRef.current;
@@ -441,7 +459,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
               <div style={posterSquadColumnStyle(POSTER_CHAR_COLUMN_WIDTH)}>
                 <PosterPill label="隊長" style={posterRoleBadgeStyle("leader")} />
               <PosterCharacterFrame
-                src={profile?.aiCharacterUrl}
+                src={captainSrc}
                 alt="冒險角色"
                 fallback="🧙"
               />
@@ -484,7 +502,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
             <div style={posterSquadColumnStyle(POSTER_CHAR_COLUMN_WIDTH)}>
               <PosterPill label="夥伴" style={posterRoleBadgeStyle("partner")} />
               <PosterCharacterFrame
-                src={companion ? COMPANION_IMAGE_SRC[companion.species] : undefined}
+                src={companionSrc}
                 alt={companion ? COMPANION_IMAGE_LABEL[companion.species] : "夥伴"}
                 fallback="🐾"
               />

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { CharacterStyle, CharacterGender } from "@/lib/types";
 import { generateCharacterImage } from "@/lib/ai/dalle";
+import { inlineRemoteImageUrl } from "@/lib/ai/inline-image";
 import { describeReferenceImage, validateReferenceImage } from "@/lib/ai/reference-image";
 import { buildCharacterImagePrompt } from "@/lib/theme/adventure-style";
 import {
@@ -81,7 +82,13 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = buildCharacterImagePrompt({ style, gender, referenceDesc });
-    const url = await generateCharacterImage(prompt);
+    let url = await generateCharacterImage(prompt);
+
+    try {
+      url = await inlineRemoteImageUrl(url);
+    } catch (err) {
+      console.warn("Avatar inline failed, keeping remote url:", err);
+    }
 
     return jsonResponse(request, {
       url,
