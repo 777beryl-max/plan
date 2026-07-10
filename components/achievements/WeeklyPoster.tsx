@@ -192,7 +192,7 @@ function ShareSheet({
             disabled={sharing}
             className="pixel-btn w-full border-4 border-[var(--pixel-border)] bg-[var(--pixel-mp)] px-4 py-3 text-label text-white disabled:opacity-60"
           >
-            {sharing ? "準備中..." : "分享 PNG 到其他 App"}
+            {sharing ? "準備中..." : "分享戰報到其他 App"}
           </button>
           <button
             type="button"
@@ -296,9 +296,9 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
         return;
       }
       if (result === "cancelled") return;
-      alert("此裝置無法開啟系統分享，請改用「複製 PNG」或下載圖片。");
+      alert("此裝置無法開啟系統分享，請改用複製圖片或下載戰報。");
     } catch {
-      alert("分享失敗，請改用「複製 PNG」或下載圖片。");
+      alert("分享失敗，請改用複製圖片或下載戰報。");
     } finally {
       setSharing(false);
     }
@@ -312,7 +312,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
       setShareOpen(false);
       return;
     }
-    alert("此瀏覽器無法複製圖片，請改用「分享 PNG 到其他 App」或下載圖片。");
+    alert("此瀏覽器無法複製圖片，請改用「分享戰報」或下載圖片。");
   };
 
   const handleCopyText = async () => {
@@ -601,7 +601,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
           disabled={sharing}
           className="pixel-btn flex-1 border-4 border-[var(--pixel-border)] bg-[var(--pixel-mp)] px-4 py-2 text-label text-white disabled:opacity-60"
         >
-          {sharing ? "準備中..." : "分享 PNG"}
+          {sharing ? "準備中..." : "分享戰報"}
         </button>
       </div>
 
