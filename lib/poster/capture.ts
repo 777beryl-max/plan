@@ -69,6 +69,25 @@ async function captureWithHtml2Canvas(element: HTMLElement): Promise<Blob> {
   return canvasToBlob(canvas);
 }
 
+async function waitForPosterImages(element: HTMLElement) {
+  const imgs = element.querySelectorAll<HTMLImageElement>("img[data-poster-char]");
+  await Promise.all(
+    Array.from(imgs).map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete && img.naturalWidth > 0) {
+            resolve();
+            return;
+          }
+          const done = () => resolve();
+          img.addEventListener("load", done, { once: true });
+          img.addEventListener("error", done, { once: true });
+          window.setTimeout(done, 8000);
+        })
+    )
+  );
+}
+
 export async function capturePosterPng(element: HTMLElement): Promise<Blob> {
   await document.fonts.ready;
   await preloadImages(collectPosterImageUrls(element));
@@ -77,6 +96,7 @@ export async function capturePosterPng(element: HTMLElement): Promise<Blob> {
 
   try {
     await embedPosterImages(element);
+    await waitForPosterImages(element);
     await waitForPaint();
 
     try {

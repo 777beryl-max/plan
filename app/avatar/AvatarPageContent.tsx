@@ -9,6 +9,7 @@ import { PixelButton } from "@/components/ui/PixelButton";
 import { AdventureAvatar } from "@/components/ui/AdventureAvatar";
 import { AvatarGenerator } from "@/components/avatar/AvatarGenerator";
 import { getRemainingAvatarChanges } from "@/lib/avatar/limits";
+import { persistAvatarImageUrlWithFallback } from "@/lib/avatar/persist-image";
 
 export default function AvatarPage() {
   const router = useRouter();
@@ -16,6 +17,8 @@ export default function AvatarPage() {
   const updateProfile = useAppStore((s) => s.updateProfile);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [remainingChanges, setRemainingChanges] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   if (!profile) {
     return (
@@ -28,6 +31,26 @@ export default function AvatarPage() {
   }
 
   const remaining = remainingChanges ?? getRemainingAvatarChanges(profile);
+  const needsPersist =
+    Boolean(profile.aiCharacterUrl) && !profile.aiCharacterUrl!.startsWith("data:");
+
+  const handleSaveImage = async () => {
+    if (!profile.aiCharacterUrl) return;
+    setSaving(true);
+    setSaveMessage(null);
+    try {
+      const img = document.querySelector<HTMLImageElement>(".adventure-avatar-img");
+      const dataUrl = await persistAvatarImageUrlWithFallback(profile.aiCharacterUrl, img);
+      if (!dataUrl) {
+        setSaveMessage("儲存失敗，頭像連結可能已過期。");
+        return;
+      }
+      await updateProfile({ aiCharacterUrl: dataUrl });
+      setSaveMessage("頭像已儲存到本機，戰報匯出可正常使用。");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleSuccess = async (data: {
     url: string;
@@ -46,6 +69,25 @@ export default function AvatarPage() {
     setPreviewUrl(data.url);
     setRemainingChanges(data.remainingChanges);
   };
+
+  const saveImageButton = needsPersist ? (
+    <div className="space-y-2">
+      <PixelButton
+        variant="ghost"
+        className="w-full"
+        size="lg"
+        disabled={saving}
+        onClick={handleSaveImage}
+      >
+        {saving ? "儲存中…" : "儲存頭像圖片（不消耗換頭像次數）"}
+      </PixelButton>
+      {saveMessage && (
+        <p className="font-body text-sm text-center text-[var(--pixel-text-muted)]">
+          {saveMessage}
+        </p>
+      )}
+    </div>
+  ) : null;
 
   return (
     <div className="space-y-4">
@@ -78,6 +120,7 @@ export default function AvatarPage() {
             <p className="font-body text-lg text-[var(--pixel-text-muted)]">
               換頭像次數已用完（最多 2 次）
             </p>
+            {saveImageButton}
             <Link href="/">
               <PixelButton variant="ghost" className="w-full">
                 回到基地
@@ -97,6 +140,7 @@ export default function AvatarPage() {
                 </div>
               </div>
             )}
+            {saveImageButton}
             <AvatarGenerator
               displayName={profile.displayName}
               avatarGenerationCount={profile.avatarGenerationCount}

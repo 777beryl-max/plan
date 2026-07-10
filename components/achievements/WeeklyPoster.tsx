@@ -115,6 +115,10 @@ function PosterCharacterFrame({
     POSTER_CHARACTER_SIZE + POSTER_FRAME_SHADOW.y
   );
 
+  useEffect(() => {
+    setBroken(false);
+  }, [src]);
+
   const showImage = Boolean(src) && !broken;
 
   return (
@@ -249,10 +253,13 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
   const companion = useCompanionStore((s) => s.companion);
   const displayName = profile?.displayName ?? "冒險者";
   const rate = getCompletionRate(report.plannedCount, report.completedCount);
-  const captainSrc = usePosterImageSrc(profile?.aiCharacterUrl);
-  const companionSrc = usePosterImageSrc(
+  const captainImage = usePosterImageSrc(profile?.aiCharacterUrl);
+  const companionImage = usePosterImageSrc(
     companion ? COMPANION_IMAGE_SRC[companion.species] : undefined
   );
+  const captainSrc = captainImage.src;
+  const companionSrc = companionImage.src;
+  const posterImagesReady = captainImage.ready && companionImage.ready;
   const [sharing, setSharing] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
@@ -260,16 +267,20 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
 
   useEffect(() => {
     shareBlobRef.current = null;
-  }, [captainSrc, companionSrc, companion?.name, report.id]);
+  }, [captainSrc, companionSrc, companion?.name, report.id, posterImagesReady]);
 
   useEffect(() => {
+    if (!posterImagesReady) return;
+    if (!captainSrc?.startsWith("data:")) return;
     const raw = profile?.aiCharacterUrl;
     if (!raw || raw.startsWith("data:")) return;
-    if (!captainSrc?.startsWith("data:")) return;
     void updateProfile({ aiCharacterUrl: captainSrc });
-  }, [captainSrc, profile?.aiCharacterUrl, updateProfile]);
+  }, [captainSrc, posterImagesReady, profile?.aiCharacterUrl, updateProfile]);
 
   const ensurePosterBlob = async () => {
+    if (!posterImagesReady) {
+      throw new Error("戰報圖片載入中，請稍候再試");
+    }
     if (shareBlobRef.current) return shareBlobRef.current;
     if (!posterRef.current) throw new Error("戰報尚未準備好");
     const blob = await capturePosterPng(posterRef.current);
@@ -605,20 +616,25 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
         <button
           type="button"
           onClick={handleDownload}
-          disabled={sharing}
+          disabled={sharing || !posterImagesReady}
           className="pixel-btn flex-1 border-4 border-[var(--pixel-border)] bg-[var(--pixel-accent)] px-4 py-2 text-label text-[var(--pixel-border)] disabled:opacity-60"
         >
-          {sharing ? "準備中..." : "下載 PNG"}
+          {sharing ? "準備中..." : !posterImagesReady ? "載入頭像…" : "下載 PNG"}
         </button>
         <button
           type="button"
           onClick={handleShare}
-          disabled={sharing}
+          disabled={sharing || !posterImagesReady}
           className="pixel-btn flex-1 border-4 border-[var(--pixel-border)] bg-[var(--pixel-mp)] px-4 py-2 text-label text-white disabled:opacity-60"
         >
-          {sharing ? "準備中..." : "分享戰報"}
+          {sharing ? "準備中..." : !posterImagesReady ? "載入頭像…" : "分享戰報"}
         </button>
       </div>
+      {posterImagesReady && profile?.aiCharacterUrl && !captainSrc && (
+        <p className="text-center font-body text-sm text-[var(--pixel-text-muted)]">
+          隊長頭像無法載入。請到頭像頁點「儲存頭像圖片」，不需消耗換頭像次數。
+        </p>
+      )}
 
       <ShareSheet
         open={shareOpen}

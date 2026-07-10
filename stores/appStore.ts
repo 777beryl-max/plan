@@ -15,6 +15,7 @@ import {
 import { getDB } from "@/lib/db/dexie";
 import { createBaseEntity, nowISO } from "@/lib/utils";
 import { ADVENTURER_XP_AMOUNTS } from "@/lib/adventurer/rewards";
+import { persistAvatarImageUrl } from "@/lib/avatar/persist-image";
 
 interface AppStore {
   profile: UserProfile | null;
@@ -83,6 +84,19 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set({ loading: true });
     let profile = await getUserProfile();
     profile = await migrateAdventurerXp(profile);
+
+    if (profile.aiCharacterUrl && !profile.aiCharacterUrl.startsWith("data:")) {
+      const dataUrl = await persistAvatarImageUrl(profile.aiCharacterUrl);
+      if (dataUrl) {
+        profile = {
+          ...profile,
+          aiCharacterUrl: dataUrl,
+          updatedAt: nowISO(),
+        };
+        await saveUserProfile(profile);
+      }
+    }
+
     set({ profile, loading: false });
   },
 
