@@ -83,6 +83,12 @@ export default function FocusPage() {
               重置
             </PixelButton>
           </div>
+
+          {phase !== "idle" && (
+            <p className="font-body text-sm text-[var(--pixel-text-muted)] mt-4 text-center max-w-xs">
+              計時會在背景持續，螢幕關閉或切換 App 後回來會自動結算
+            </p>
+          )}
         </div>
       </PixelCard>
 

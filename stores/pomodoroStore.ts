@@ -7,6 +7,15 @@ import {
   getPomodoroSessions,
 } from "@/lib/repositories";
 import { createBaseEntity } from "@/lib/utils";
+import {
+  clearPomodoroState,
+  loadPomodoroState,
+  savePomodoroState,
+} from "@/lib/pomodoro/persist";
+import {
+  requestPomodoroNotificationPermission,
+  showPomodoroNotification,
+} from "@/lib/pomodoro/notify";
 
 export type PomodoroPhase = "idle" | "focus" | "break";
 
@@ -16,37 +25,81 @@ const BREAK_MINUTES = 5;
 interface PomodoroStore {
   phase: PomodoroPhase;
   secondsLeft: number;
+  endsAt: number | null;
   focusMinutes: number;
   breakMinutes: number;
   activeTaskId: string | null;
   activeTaskTitle: string | null;
   sessions: Awaited<ReturnType<typeof getPomodoroSessions>>;
-  intervalId: ReturnType<typeof setInterval> | null;
+  tickerId: ReturnType<typeof setInterval> | null;
+  completing: boolean;
   loadSessions: () => Promise<void>;
+  hydrate: () => void;
   setActiveTask: (task: DayTask | null) => void;
   startFocus: () => void;
   startBreak: () => void;
   pause: () => void;
   reset: () => void;
-  tick: () => void;
+  syncTimer: () => void;
   completeSession: () => Promise<void>;
   getTodayStats: () => { minutes: number; sessions: number };
   getWeekStats: () => { minutes: number; sessions: number };
 }
 
+function secondsUntil(endsAt: number): number {
+  return Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+}
+
+function startTicker(get: () => PomodoroStore, set: (partial: Partial<PomodoroStore>) => void) {
+  const { tickerId } = get();
+  if (tickerId) clearInterval(tickerId);
+  const id = setInterval(() => get().syncTimer(), 1000);
+  set({ tickerId: id });
+}
+
+function stopTicker(get: () => PomodoroStore, set: (partial: Partial<PomodoroStore>) => void) {
+  const { tickerId } = get();
+  if (tickerId) clearInterval(tickerId);
+  set({ tickerId: null });
+}
+
 export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
   phase: "idle",
   secondsLeft: FOCUS_MINUTES * 60,
+  endsAt: null,
   focusMinutes: FOCUS_MINUTES,
   breakMinutes: BREAK_MINUTES,
   activeTaskId: null,
   activeTaskTitle: null,
   sessions: [],
-  intervalId: null,
+  tickerId: null,
+  completing: false,
 
   loadSessions: async () => {
     const sessions = await getPomodoroSessions();
     set({ sessions });
+  },
+
+  hydrate: () => {
+    const saved = loadPomodoroState();
+    if (!saved) return;
+
+    const left = secondsUntil(saved.endsAt);
+    set({
+      phase: saved.phase,
+      endsAt: saved.endsAt,
+      secondsLeft: left,
+      activeTaskId: saved.activeTaskId,
+      activeTaskTitle: saved.activeTaskTitle,
+      focusMinutes: saved.focusMinutes,
+      breakMinutes: saved.breakMinutes,
+    });
+
+    if (left > 0) {
+      startTicker(get, set);
+    } else {
+      get().syncTimer();
+    }
   },
 
   setActiveTask: (task) => {
@@ -57,65 +110,134 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
   },
 
   startFocus: () => {
-    const { intervalId, focusMinutes } = get();
-    if (intervalId) clearInterval(intervalId);
+    const { focusMinutes, activeTaskId, activeTaskTitle, breakMinutes } = get();
+    const endsAt = Date.now() + focusMinutes * 60 * 1000;
 
-    const id = setInterval(() => get().tick(), 1000);
-    set({
+    savePomodoroState({
       phase: "focus",
-      secondsLeft: focusMinutes * 60,
-      intervalId: id,
+      endsAt,
+      activeTaskId,
+      activeTaskTitle,
+      focusMinutes,
+      breakMinutes,
     });
 
-    if (typeof Notification !== "undefined" && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
+    set({
+      phase: "focus",
+      endsAt,
+      secondsLeft: focusMinutes * 60,
+    });
+
+    startTicker(get, set);
+    void requestPomodoroNotificationPermission();
   },
 
   startBreak: () => {
-    const { intervalId, breakMinutes } = get();
-    if (intervalId) clearInterval(intervalId);
+    const { breakMinutes, activeTaskId, activeTaskTitle, focusMinutes } = get();
+    const endsAt = Date.now() + breakMinutes * 60 * 1000;
 
-    const id = setInterval(() => get().tick(), 1000);
+    savePomodoroState({
+      phase: "break",
+      endsAt,
+      activeTaskId,
+      activeTaskTitle,
+      focusMinutes,
+      breakMinutes,
+    });
+
     set({
       phase: "break",
+      endsAt,
       secondsLeft: breakMinutes * 60,
-      intervalId: id,
     });
+
+    startTicker(get, set);
   },
 
   pause: () => {
-    const { intervalId } = get();
-    if (intervalId) clearInterval(intervalId);
-    set({ phase: "idle", intervalId: null });
-  },
-
-  reset: () => {
-    const { intervalId, focusMinutes } = get();
-    if (intervalId) clearInterval(intervalId);
+    stopTicker(get, set);
+    clearPomodoroState();
     set({
       phase: "idle",
-      secondsLeft: focusMinutes * 60,
-      intervalId: null,
+      endsAt: null,
+      secondsLeft: get().focusMinutes * 60,
     });
   },
 
-  tick: () => {
-    const { secondsLeft, phase, intervalId } = get();
-    if (secondsLeft <= 1) {
-      if (intervalId) clearInterval(intervalId);
-      if (phase === "focus") {
-        set({ intervalId: null });
-        void get().completeSession().then(() => get().startBreak());
-      } else if (phase === "break") {
-        set({ phase: "idle", secondsLeft: get().focusMinutes * 60, intervalId: null });
-        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-          new Notification("休息結束！", { body: "準備好下一場戰鬥了嗎？" });
-        }
-      }
+  reset: () => {
+    stopTicker(get, set);
+    clearPomodoroState();
+    set({
+      phase: "idle",
+      endsAt: null,
+      secondsLeft: get().focusMinutes * 60,
+      completing: false,
+    });
+  },
+
+  syncTimer: () => {
+    const { phase, endsAt, completing, breakMinutes, focusMinutes } = get();
+    if (phase === "idle" || !endsAt || completing) return;
+
+    const left = secondsUntil(endsAt);
+    set({ secondsLeft: left });
+
+    if (left > 0) return;
+
+    stopTicker(get, set);
+
+    if (phase === "focus") {
+      set({ completing: true });
+      void get()
+        .completeSession()
+        .then(() => {
+          set({ completing: false });
+          const breakEndsAt = endsAt + breakMinutes * 60 * 1000;
+          if (Date.now() >= breakEndsAt) {
+            clearPomodoroState();
+            set({
+              phase: "idle",
+              endsAt: null,
+              secondsLeft: focusMinutes * 60,
+            });
+            void showPomodoroNotification("專注完成！", "休息也已結束，準備下一場吧！");
+            return;
+          }
+
+          const {
+            activeTaskId,
+            activeTaskTitle,
+            focusMinutes: fm,
+            breakMinutes: bm,
+          } = get();
+          savePomodoroState({
+            phase: "break",
+            endsAt: breakEndsAt,
+            activeTaskId,
+            activeTaskTitle,
+            focusMinutes: fm,
+            breakMinutes: bm,
+          });
+          set({
+            phase: "break",
+            endsAt: breakEndsAt,
+            secondsLeft: secondsUntil(breakEndsAt),
+          });
+          startTicker(get, set);
+        })
+        .catch(() => set({ completing: false }));
       return;
     }
-    set({ secondsLeft: secondsLeft - 1 });
+
+    if (phase === "break") {
+      clearPomodoroState();
+      set({
+        phase: "idle",
+        endsAt: null,
+        secondsLeft: get().focusMinutes * 60,
+      });
+      void showPomodoroNotification("休息結束！", "準備好下一場戰鬥了嗎？");
+    }
   },
 
   completeSession: async () => {
@@ -145,10 +267,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
     }
 
     await get().loadSessions();
-
-    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-      new Notification("專注完成！", { body: "任務已自動標記完成 ⚔️" });
-    }
+    await showPomodoroNotification("專注完成！", "任務已自動標記完成 ⚔️");
 
     const { useCompanionStore } = await import("@/stores/companionStore");
     await useCompanionStore.getState().updateMoodFromActivity();

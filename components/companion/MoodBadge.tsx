@@ -5,20 +5,20 @@ const MOOD_PIXELS: Record<
   { rows: string[]; palette: Record<string, string> }
 > = {
   idle: {
-    palette: { K: "#1a1a2e", W: "#ffffff" },
-    rows: ["KK", "WW"],
+    palette: { K: "#4a3728", W: "#ffffff", o: "#ffeaa7" },
+    rows: [".o.", "KWK", ".K."],
   },
   happy: {
-    palette: { K: "#1a1a2e" },
-    rows: ["K.K", ".K."],
+    palette: { K: "#4a3728", R: "#ffb3c6" },
+    rows: ["R.R", "K.K", ".R."],
   },
   cheering: {
-    palette: { Y: "#f7d51d", K: "#1a1a2e" },
-    rows: [".Y.", "YKY", ".Y."],
+    palette: { Y: "#ffe066", K: "#4a3728", R: "#ffb3c6" },
+    rows: ["Y.Y", "RKR", ".Y."],
   },
   sleepy: {
-    palette: { K: "#9b8ec4", W: "#ffffff" },
-    rows: ["KKK", "WWW", "KKK"],
+    palette: { K: "#9b8ec4", W: "#e8e0ff" },
+    rows: ["z.z", "KWK", "z.z"],
   },
 };
 

@@ -3,6 +3,7 @@
 import { type ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
 import { AuthMenu } from "./AuthMenu";
+import { PomodoroWatcher } from "@/components/focus/PomodoroWatcher";
 
 interface AppShellProps {
   children: ReactNode;
@@ -11,6 +12,7 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-[var(--pixel-bg)] text-[var(--pixel-text)]">
+      <PomodoroWatcher />
       <header className="sticky top-0 z-30 border-b-4 border-[var(--pixel-border)] bg-[var(--pixel-surface)] px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
           <div className="min-w-0">
