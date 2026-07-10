@@ -29,14 +29,15 @@ export const POSTER_COLORS = {
 } as const;
 
 export const POSTER_CHARACTER_SIZE = 96;
+export const POSTER_FRAME_RADIUS = 20;
+export const POSTER_FRAME_SHADOW = { x: 3, y: 3 };
 
 export const POSTER_CHARACTER_FRAME_BASE = {
   width: POSTER_CHARACTER_SIZE,
   height: POSTER_CHARACTER_SIZE,
   margin: "0 auto",
-  borderRadius: 20,
+  borderRadius: POSTER_FRAME_RADIUS,
   border: `3px solid ${POSTER_COLORS.border}`,
-  boxShadow: `3px 3px 0 ${POSTER_COLORS.border}`,
   overflow: "hidden" as const,
   boxSizing: "border-box" as const,
   backgroundSize: "cover" as const,

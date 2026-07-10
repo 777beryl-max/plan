@@ -6,8 +6,8 @@ const CAPTURE_SCALE = 2;
 function collectPosterImageUrls(element: HTMLElement): string[] {
   const urls = new Set<string>();
 
-  element.querySelectorAll("[data-poster-bg]").forEach((node) => {
-    const url = node.getAttribute("data-poster-bg");
+  element.querySelectorAll("img[data-poster-char]").forEach((node) => {
+    const url = node.getAttribute("data-poster-src") || node.getAttribute("src");
     if (url) urls.add(url);
   });
 

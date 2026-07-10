@@ -12,15 +12,25 @@ import { copyPosterPngToClipboard, sharePosterPng } from "@/lib/poster/share";
 import {
   POSTER_COLORS,
   POSTER_CHARACTER_SIZE,
-  posterCharacterFrameStyle,
+  POSTER_FRAME_RADIUS,
+  POSTER_FRAME_SHADOW,
 } from "@/lib/poster/colors";
+import {
+  POSTER_CHARACTER_IMAGE_STYLE,
+  POSTER_CHAR_COLUMN_WIDTH,
+  POSTER_MEDAL_COLUMN_WIDTH,
+  POSTER_MEDAL_FACE_STYLE,
+  POSTER_MEDAL_SHADOW,
+  POSTER_PIXEL_FRAME_FACE_STYLE,
+  posterPixelFrameShadowStyle,
+  posterPixelFrameShellStyle,
+} from "@/lib/poster/frame";
 import {
   POSTER_TEXT_CENTER,
   POSTER_MEDAL_SIZE,
   posterWeekBadgeStyle,
   posterRoleBadgeStyle,
   posterNameStyle,
-  POSTER_MEDAL_OUTER_STYLE,
   posterStatPillContentStyle,
   posterStatPillLabelStyle,
   POSTER_SQUAD_STYLE,
@@ -98,37 +108,48 @@ function PosterCharacterFrame({
   alt: string;
   fallback: string;
 }) {
-  if (src) {
-    return (
-      <div
-        data-poster-bg={src}
-        role="img"
-        aria-label={alt}
-        style={posterCharacterFrameStyle(src)}
-      />
-    );
-  }
+  const shellStyle = posterPixelFrameShellStyle(
+    POSTER_CHAR_COLUMN_WIDTH,
+    POSTER_CHARACTER_SIZE + POSTER_FRAME_SHADOW.y
+  );
 
   return (
-    <div style={posterCharacterFrameStyle()} aria-label={alt}>
+    <div data-poster-frame style={shellStyle}>
       <div
-        style={{
-          display: "table",
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        <div
-          style={{
-            display: "table-cell",
-            verticalAlign: "middle",
-            textAlign: "center",
-            fontSize: 32,
-            lineHeight: "36px",
-          }}
-        >
-          {fallback}
-        </div>
+        aria-hidden
+        style={posterPixelFrameShadowStyle(POSTER_CHARACTER_SIZE, POSTER_FRAME_RADIUS)}
+      />
+      <div style={POSTER_PIXEL_FRAME_FACE_STYLE}>
+        {src ? (
+          <img
+            data-poster-char
+            data-poster-src={src}
+            src={src}
+            alt={alt}
+            style={POSTER_CHARACTER_IMAGE_STYLE}
+          />
+        ) : (
+          <div
+            style={{
+              display: "table",
+              width: "100%",
+              height: "100%",
+              background: POSTER_COLORS.frameGradient,
+            }}
+          >
+            <div
+              style={{
+                display: "table-cell",
+                verticalAlign: "middle",
+                textAlign: "center",
+                fontSize: 32,
+                lineHeight: "36px",
+              }}
+            >
+              {fallback}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -417,7 +438,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
 
           <div style={{ textAlign: "center" }}>
             <div className="weekly-poster-squad" data-poster-squad style={POSTER_SQUAD_STYLE}>
-              <div style={posterSquadColumnStyle(POSTER_CHARACTER_SIZE)}>
+              <div style={posterSquadColumnStyle(POSTER_CHAR_COLUMN_WIDTH)}>
                 <PosterPill label="隊長" style={posterRoleBadgeStyle("leader")} />
               <PosterCharacterFrame
                 src={profile?.aiCharacterUrl}
@@ -429,13 +450,30 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
               </p>
             </div>
 
-            <div style={posterSquadColumnStyle(POSTER_MEDAL_SIZE)}>
-              <div data-poster-medal style={POSTER_MEDAL_OUTER_STYLE}>
-                <div data-poster-medal-line="rate" style={POSTER_MEDAL_RATE_STYLE}>
-                  {rate}%
-                </div>
-                <div data-poster-medal-line="label" style={POSTER_MEDAL_LABEL_STYLE}>
-                  完成率
+            <div style={posterSquadColumnStyle(POSTER_MEDAL_COLUMN_WIDTH)}>
+              <div
+                data-poster-medal
+                style={posterPixelFrameShellStyle(
+                  POSTER_MEDAL_COLUMN_WIDTH,
+                  POSTER_MEDAL_SIZE + POSTER_MEDAL_SHADOW.y
+                )}
+              >
+                <div
+                  aria-hidden
+                  style={posterPixelFrameShadowStyle(
+                    POSTER_MEDAL_SIZE,
+                    "50%",
+                    POSTER_MEDAL_SHADOW.x,
+                    POSTER_MEDAL_SHADOW.y
+                  )}
+                />
+                <div style={POSTER_MEDAL_FACE_STYLE}>
+                  <div data-poster-medal-line="rate" style={POSTER_MEDAL_RATE_STYLE}>
+                    {rate}%
+                  </div>
+                  <div data-poster-medal-line="label" style={POSTER_MEDAL_LABEL_STYLE}>
+                    完成率
+                  </div>
                 </div>
               </div>
               <span style={{ display: "block", marginTop: 4, fontSize: 12 }} aria-hidden>
@@ -443,7 +481,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
               </span>
             </div>
 
-            <div style={posterSquadColumnStyle(POSTER_CHARACTER_SIZE)}>
+            <div style={posterSquadColumnStyle(POSTER_CHAR_COLUMN_WIDTH)}>
               <PosterPill label="夥伴" style={posterRoleBadgeStyle("partner")} />
               <PosterCharacterFrame
                 src={companion ? COMPANION_IMAGE_SRC[companion.species] : undefined}

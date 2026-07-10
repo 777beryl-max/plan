@@ -20,7 +20,7 @@ export function posterWeekBadgeStyle() {
     borderRadius: 999,
     border: `3px solid ${POSTER_COLORS.border}`,
     background: POSTER_COLORS.stageBadge,
-    boxShadow: `2px 2px 0 ${POSTER_COLORS.border}`,
+    boxShadow: "none",
     boxSizing: "border-box" as const,
   };
 }
@@ -94,21 +94,6 @@ export const POSTER_MEDAL_LABEL_STYLE = {
   margin: "3px 0 0",
   padding: 0,
   textAlign: "center" as const,
-};
-
-export const POSTER_MEDAL_OUTER_STYLE = {
-  width: POSTER_MEDAL_SIZE,
-  height: POSTER_MEDAL_SIZE,
-  borderRadius: "50%",
-  border: `4px solid ${POSTER_COLORS.goldDark}`,
-  background: POSTER_COLORS.medalGradient,
-  boxShadow: `3px 4px 0 ${POSTER_COLORS.border}`,
-  display: "flex" as const,
-  flexDirection: "column" as const,
-  alignItems: "center" as const,
-  justifyContent: "center" as const,
-  margin: "0 auto",
-  boxSizing: "border-box" as const,
 };
 
 export function posterGoalRowStyle() {

@@ -65,6 +65,10 @@ export function preparePosterForExport(root: HTMLElement): () => void {
 
   stripUnsupportedColors(root, set);
 
+  root.querySelectorAll<HTMLElement>("[data-poster-frame], [data-poster-medal]").forEach((node) => {
+    set(node, "box-shadow", "none");
+  });
+
   return () => {
     for (const { element, property, previous } of edits.reverse()) {
       if (previous) element.style.setProperty(property, previous);
