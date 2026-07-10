@@ -17,19 +17,19 @@ import {
 import {
   POSTER_TEXT_CENTER,
   POSTER_MEDAL_SIZE,
-  posterPillCellStyle,
-  posterWeekBadgeOuterStyle,
-  posterRoleBadgeOuterStyle,
+  posterWeekBadgeStyle,
+  posterRoleBadgeStyle,
   posterNameStyle,
   POSTER_MEDAL_OUTER_STYLE,
-  POSTER_MEDAL_INNER_STYLE,
   posterStatPillContentStyle,
   posterStatPillLabelStyle,
-  POSTER_SQUAD_FLEX_STYLE,
+  POSTER_SQUAD_STYLE,
   posterSquadColumnStyle,
-  POSTER_MEDAL_TEXT_WRAP_STYLE,
   POSTER_MEDAL_RATE_STYLE,
   POSTER_MEDAL_LABEL_STYLE,
+  posterGoalRowStyle,
+  posterGoalTitleStyle,
+  posterGoalScoreStyle,
 } from "@/lib/poster/layout";
 
 interface WeeklyPosterProps {
@@ -81,24 +81,10 @@ function PosterStatPill({
   );
 }
 
-function PosterPill({
-  label,
-  outerStyle,
-  fontSize,
-  color,
-  padding,
-}: {
-  label: string;
-  outerStyle: CSSProperties;
-  fontSize: number;
-  color: string;
-  padding?: string;
-}) {
+function PosterPill({ label, style }: { label: string; style: CSSProperties }) {
   return (
-    <div data-poster-pill style={outerStyle}>
-      <div data-poster-pill-label style={posterPillCellStyle(fontSize, color, padding)}>
-        {label}
-      </div>
+    <div data-poster-pill style={style}>
+      {label}
     </div>
   );
 }
@@ -331,8 +317,11 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
     <div className="space-y-3">
       <div
         ref={posterRef}
-        className="weekly-poster rounded-3xl border-[3px] p-5 sm:p-6"
+        className="weekly-poster"
         style={{
+          borderRadius: 24,
+          border: `3px solid ${POSTER_COLORS.goldDark}`,
+          padding: 24,
           borderColor: POSTER_COLORS.goldDark,
           background: POSTER_COLORS.posterGradient,
           overflow: "visible",
@@ -365,10 +354,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
           </span>
           <PosterPill
             label={`第 ${report.week} 週`}
-            outerStyle={posterWeekBadgeOuterStyle()}
-            fontSize={14}
-            color={POSTER_COLORS.border}
-            padding="4px 0"
+            style={posterWeekBadgeStyle()}
           />
           <p
             style={{
@@ -429,15 +415,10 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
             🏠 本週冒險小隊
           </p>
 
-          <div className="weekly-poster-squad" style={POSTER_SQUAD_FLEX_STYLE}>
-            <div style={posterSquadColumnStyle(POSTER_CHARACTER_SIZE)}>
-              <PosterPill
-                label="隊長"
-                outerStyle={posterRoleBadgeOuterStyle("leader")}
-                fontSize={10}
-                color={POSTER_COLORS.border}
-                padding="2px 0"
-              />
+          <div style={{ textAlign: "center" }}>
+            <div className="weekly-poster-squad" data-poster-squad style={POSTER_SQUAD_STYLE}>
+              <div style={posterSquadColumnStyle(POSTER_CHARACTER_SIZE)}>
+                <PosterPill label="隊長" style={posterRoleBadgeStyle("leader")} />
               <PosterCharacterFrame
                 src={profile?.aiCharacterUrl}
                 alt="冒險角色"
@@ -449,12 +430,12 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
             </div>
 
             <div style={posterSquadColumnStyle(POSTER_MEDAL_SIZE)}>
-              <div style={POSTER_MEDAL_OUTER_STYLE}>
-                <div style={POSTER_MEDAL_INNER_STYLE}>
-                  <div style={POSTER_MEDAL_TEXT_WRAP_STYLE}>
-                    <div style={POSTER_MEDAL_RATE_STYLE}>{rate}%</div>
-                    <div style={POSTER_MEDAL_LABEL_STYLE}>完成率</div>
-                  </div>
+              <div data-poster-medal style={POSTER_MEDAL_OUTER_STYLE}>
+                <div data-poster-medal-line="rate" style={POSTER_MEDAL_RATE_STYLE}>
+                  {rate}%
+                </div>
+                <div data-poster-medal-line="label" style={POSTER_MEDAL_LABEL_STYLE}>
+                  完成率
                 </div>
               </div>
               <span style={{ display: "block", marginTop: 4, fontSize: 12 }} aria-hidden>
@@ -463,13 +444,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
             </div>
 
             <div style={posterSquadColumnStyle(POSTER_CHARACTER_SIZE)}>
-              <PosterPill
-                label="夥伴"
-                outerStyle={posterRoleBadgeOuterStyle("partner")}
-                fontSize={10}
-                color={POSTER_COLORS.border}
-                padding="2px 0"
-              />
+              <PosterPill label="夥伴" style={posterRoleBadgeStyle("partner")} />
               <PosterCharacterFrame
                 src={companion ? COMPANION_IMAGE_SRC[companion.species] : undefined}
                 alt={companion ? COMPANION_IMAGE_LABEL[companion.species] : "夥伴"}
@@ -479,6 +454,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
                 {companion?.name ?? "尚未結伴"}
               </p>
             </div>
+          </div>
           </div>
         </div>
 
@@ -496,8 +472,11 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
         </div>
 
         <div
-          className="mt-4 rounded-2xl border-[3px] p-3"
           style={{
+            marginTop: 16,
+            borderRadius: 16,
+            border: `3px solid ${POSTER_COLORS.borderSoft}`,
+            padding: 12,
             borderColor: POSTER_COLORS.borderSoft,
             backgroundColor: POSTER_COLORS.chartBg,
           }}
@@ -507,8 +486,11 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
 
         {report.goalStats.length > 0 && (
           <div
-            className="mt-4 rounded-2xl border-[3px] px-3 py-3"
             style={{
+              marginTop: 16,
+              borderRadius: 16,
+              border: `3px solid ${POSTER_COLORS.borderSoft}`,
+              padding: "12px 12px",
               borderColor: POSTER_COLORS.borderSoft,
               backgroundColor: POSTER_COLORS.goalsBg,
             }}
@@ -533,37 +515,14 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
                     borderRadius: 12,
                     border: `2px solid ${POSTER_COLORS.borderSoft}`,
                     backgroundColor: POSTER_COLORS.goalItemBg,
-                    padding: "8px 12px",
+                    padding: "8px 10px 8px 12px",
                   }}
                 >
-                  <div style={{ display: "table", width: "100%" }}>
-                    <span
-                      style={{
-                        display: "table-cell",
-                        verticalAlign: "middle",
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: POSTER_COLORS.text,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: 0,
-                      }}
-                    >
+                  <div data-poster-goal-row style={posterGoalRowStyle()}>
+                    <span data-poster-goal-title style={posterGoalTitleStyle()}>
                       {g.goalTitle}
                     </span>
-                    <span
-                      style={{
-                        display: "table-cell",
-                        verticalAlign: "middle",
-                        textAlign: "right",
-                        width: 48,
-                        whiteSpace: "nowrap",
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: POSTER_COLORS.accent,
-                      }}
-                    >
+                    <span data-poster-goal-score style={posterGoalScoreStyle()}>
                       {g.completed}/{g.planned}
                     </span>
                   </div>

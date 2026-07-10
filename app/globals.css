@@ -308,11 +308,7 @@ body {
   }
 }
 
-/* 週戰報小隊區：窄螢幕縮放避免擠壓 */
-.weekly-poster-squad {
-  transform-origin: top center;
-}
-
+/* 週戰報小隊區：窄螢幕縮小間距（不使用 transform，避免 PNG 匯出跑位） */
 @media (max-width: 420px) {
   .weekly-poster {
     padding: 12px !important;
@@ -320,7 +316,6 @@ body {
 
   .weekly-poster-squad {
     gap: 8px !important;
-    transform: scale(0.9);
   }
 }
 
