@@ -39,7 +39,7 @@ export function CompanionSprite({
           : undefined
       }
     >
-      <PixelCompanionArt species={species} mood={mood} size={frame.art} />
+      <PixelCompanionArt species={species} mood={mood} size={frame.art} className="max-w-[88%] max-h-[88%]" />
       <span className="absolute -top-1 -right-1 adventure-mood-badge">
         <MoodBadge mood={mood} size={size === "lg" ? 22 : 18} />
       </span>
