@@ -58,6 +58,31 @@ export interface Companion extends BaseEntity {
   lastInteractionAt: string;
 }
 
+export interface CompanionProgress extends BaseEntity {
+  treatCount: number;
+  bondXp: number;
+  totalFeeds: number;
+  lastFedAt?: string;
+}
+
+export type CompanionRewardSourceType = "task" | "focus";
+
+export interface CompanionRewardLog extends BaseEntity {
+  sourceType: CompanionRewardSourceType;
+  sourceId: string;
+  treatAmount: number;
+  rewardedAt: string;
+}
+
+export type AdventurerRewardSourceType = "task" | "focus";
+
+export interface AdventurerRewardLog extends BaseEntity {
+  sourceType: AdventurerRewardSourceType;
+  sourceId: string;
+  xpAmount: number;
+  rewardedAt: string;
+}
+
 export type CharacterStyle = "brave" | "healing" | "scholar";
 export type CharacterGender = "male" | "female" | "neutral";
 
@@ -65,9 +90,12 @@ export interface UserProfile extends BaseEntity {
   displayName: string;
   aiCharacterUrl?: string;
   aiGeneratedAt?: string;
+  avatarGenerationCount?: number;
   characterStyle?: CharacterStyle;
   characterGender?: CharacterGender;
   onboardingDone: boolean;
+  adventurerXp?: number;
+  adventurerXpMigrated?: boolean;
 }
 
 export interface WeeklyReport extends BaseEntity {

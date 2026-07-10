@@ -6,6 +6,11 @@ import type {
   DayTask,
   PomodoroSession,
   Companion,
+  CompanionProgress,
+  CompanionRewardLog,
+  CompanionRewardSourceType,
+  AdventurerRewardLog,
+  AdventurerRewardSourceType,
   UserProfile,
   WeeklyReport,
 } from "@/lib/types";
@@ -121,6 +126,69 @@ export async function saveCompanion(companion: Companion): Promise<void> {
   await getDB().companions.put({ ...companion, updatedAt: nowISO() });
 }
 
+export async function deleteCompanion(): Promise<void> {
+  await getDB().companions.clear();
+}
+
+export async function getCompanionProgress(): Promise<CompanionProgress> {
+  const existing = await getDB().companionProgress.toCollection().first();
+  if (existing) return existing;
+
+  const progress: CompanionProgress = {
+    ...createBaseEntity(),
+    id: getProfileId(),
+    treatCount: 0,
+    bondXp: 0,
+    totalFeeds: 0,
+  };
+  await getDB().companionProgress.put(progress);
+  return progress;
+}
+
+export async function saveCompanionProgress(progress: CompanionProgress): Promise<void> {
+  await getDB().companionProgress.put({ ...progress, updatedAt: nowISO() });
+}
+
+export async function clearCompanionProgress(): Promise<void> {
+  await getDB().companionProgress.clear();
+}
+
+export async function hasRewardLog(
+  sourceType: CompanionRewardSourceType,
+  sourceId: string
+): Promise<boolean> {
+  const match = await getDB().companionRewardLogs
+    .filter((log) => log.sourceType === sourceType && log.sourceId === sourceId)
+    .first();
+  return Boolean(match);
+}
+
+export async function saveRewardLog(log: CompanionRewardLog): Promise<void> {
+  await getDB().companionRewardLogs.put({ ...log, updatedAt: nowISO() });
+}
+
+export async function clearCompanionRewardLogs(): Promise<void> {
+  await getDB().companionRewardLogs.clear();
+}
+
+export async function hasAdventurerRewardLog(
+  sourceType: AdventurerRewardSourceType,
+  sourceId: string
+): Promise<boolean> {
+  const match = await getDB().adventurerRewardLogs
+    .filter((log) => log.sourceType === sourceType && log.sourceId === sourceId)
+    .first();
+  return Boolean(match);
+}
+
+export async function saveAdventurerRewardLog(log: AdventurerRewardLog): Promise<void> {
+  await getDB().adventurerRewardLogs.put({ ...log, updatedAt: nowISO() });
+}
+
+export async function clearAdventurerRewardLogs(): Promise<void> {
+  await getDB().adventurerRewardLogs.clear();
+}
+
 export async function getUserProfile(): Promise<UserProfile> {
   const existing = await getDB().userProfiles.get(getProfileId());
   if (existing) return existing;
@@ -150,4 +218,14 @@ export async function saveWeeklyReport(report: WeeklyReport): Promise<void> {
 export async function getWeeklyReport(year: number, week: number): Promise<WeeklyReport | undefined> {
   const reports = await getDB().weeklyReports.where({ year, week }).toArray();
   return reports[0];
+}
+
+export async function clearGoalsAndPlans(): Promise<void> {
+  const db = getDB();
+  await Promise.all([
+    db.goals.clear(),
+    db.monthPlans.clear(),
+    db.weekPlans.clear(),
+    db.dayTasks.clear(),
+  ]);
 }

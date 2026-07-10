@@ -6,6 +6,7 @@
     "dev": "next dev",
     "dev:pwa": "concurrently -p none \"serwist build --watch\" \"next dev\"",
     "build": "next build && serwist build",
+    "icons": "node scripts/generate-pwa-icons.mjs",
     "start": "next start",
     "lint": "eslint"
   },

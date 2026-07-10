@@ -81,6 +81,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         dayTasks: [],
         pomodoroSessions: [],
         companions: [],
+        companionProgress: [],
+        companionRewardLogs: [],
+        adventurerRewardLogs: [],
         userProfiles: [],
         weeklyReports: [],
         exportedAt: new Date().toISOString(),
@@ -113,7 +116,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const res = await fetch("/api/sync", { credentials: "include" });
       const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error ?? "下載失敗");
+      if (!res.ok) {
+        if (res.status === 429) return;
+        throw new Error(payload.error ?? "下載失敗");
+      }
       if (payload.data) {
         await importUserDataBundle(payload.data, user.id, user.displayName);
       } else {
@@ -125,6 +131,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             dayTasks: [],
             pomodoroSessions: [],
             companions: [],
+            companionProgress: [],
+            companionRewardLogs: [],
+            adventurerRewardLogs: [],
             userProfiles: [],
             weeklyReports: [],
             exportedAt: new Date().toISOString(),
@@ -152,7 +161,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         body: JSON.stringify(bundle),
       });
       const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error ?? "上傳失敗");
+      if (!res.ok) {
+        if (res.status === 429) return;
+        throw new Error(payload.error ?? "上傳失敗");
+      }
       set({ lastSyncedAt: payload.syncedAt ?? new Date().toISOString() });
     } finally {
       set({ syncing: false });

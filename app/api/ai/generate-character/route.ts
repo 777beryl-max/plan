@@ -3,14 +3,27 @@ import type { CharacterStyle, CharacterGender } from "@/lib/types";
 import { generateCharacterImage } from "@/lib/ai/dalle";
 import { describeReferenceImage, validateReferenceImage } from "@/lib/ai/reference-image";
 import { buildCharacterImagePrompt } from "@/lib/theme/adventure-style";
-import { applyCorsHeaders, toClientErrorMessage } from "@/lib/api/security";
-
-const generatedCache = new Set<string>();
+import {
+  applyCorsHeaders,
+  getRateLimitKey,
+  toClientErrorMessage,
+} from "@/lib/api/security";
+import { getSessionUser } from "@/lib/auth/request";
+import { reserveAvatarGeneration } from "@/lib/avatar/generation-tracker";
+import { MAX_AVATAR_GENERATIONS } from "@/lib/avatar/limits";
 
 function jsonResponse(request: NextRequest, body: unknown, status = 200) {
   const response = NextResponse.json(body, { status });
   applyCorsHeaders(response, request);
   return response;
+}
+
+async function getAvatarTrackingKey(
+  request: NextRequest,
+  userId?: string | null
+): Promise<string> {
+  if (userId) return `user:${userId}`;
+  return getRateLimitKey(request);
 }
 
 export async function OPTIONS(request: NextRequest) {
@@ -27,16 +40,30 @@ export async function POST(request: NextRequest) {
     const gender = (body.gender as CharacterGender) ?? "neutral";
     const referenceImageBase64 = body.referenceImageBase64 as string | undefined;
     const referenceImageMimeType = body.referenceImageMimeType as string | undefined;
+    const clientCount =
+      typeof body.avatarGenerationCount === "number" ? body.avatarGenerationCount : 0;
 
     if (!displayName?.trim()) {
       return jsonResponse(request, { error: "請提供冒險者名稱" }, 400);
     }
 
-    const hasReference = Boolean(referenceImageBase64 && referenceImageMimeType);
-    const cacheKey = `${displayName}-${style}-${gender}-${hasReference ? "ref" : "nore"}`;
-    if (generatedCache.has(cacheKey)) {
-      return jsonResponse(request, { error: "角色已生成，不可重複生成" }, 403);
+    const user = await getSessionUser();
+    const trackingKey = await getAvatarTrackingKey(request, user?.id);
+    const quota = await reserveAvatarGeneration(trackingKey, clientCount);
+
+    if (!quota.allowed) {
+      return jsonResponse(
+        request,
+        {
+          error: `換頭像次數已用完（最多 ${MAX_AVATAR_GENERATIONS - 1} 次）`,
+          avatarGenerationCount: quota.count,
+          remainingChanges: quota.remaining,
+        },
+        403
+      );
     }
+
+    const hasReference = Boolean(referenceImageBase64 && referenceImageMimeType);
 
     let referenceDesc = "";
     if (hasReference) {
@@ -56,14 +83,14 @@ export async function POST(request: NextRequest) {
     const prompt = buildCharacterImagePrompt({ style, gender, referenceDesc });
     const url = await generateCharacterImage(prompt);
 
-    generatedCache.add(cacheKey);
-
     return jsonResponse(request, {
       url,
       displayName,
       style,
       gender,
       usedReference: hasReference,
+      avatarGenerationCount: quota.count,
+      remainingChanges: quota.remaining,
     });
   } catch (err) {
     console.error("Character generation error:", err);

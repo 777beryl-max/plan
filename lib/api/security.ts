@@ -7,11 +7,27 @@ const UUID_RE =
 
 const PRODUCTION_ORIGIN = "https://plan-lake-eight.vercel.app";
 
-/** 每裝置每分鐘最多 2 次 API 請求（全站共用額度） */
-const DEVICE_RATE_LIMIT = {
+/** AI 生成：每裝置每分鐘嚴格限流 */
+const AI_RATE_LIMIT = {
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? "2", 10),
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? String(60 * 1000), 10),
 };
+
+/** 登入、同步等一般 API：較寬鬆，避免啟動時被擋 */
+const GENERAL_RATE_LIMIT = {
+  max: parseInt(process.env.RATE_LIMIT_GENERAL_MAX ?? "60", 10),
+  windowMs: parseInt(
+    process.env.RATE_LIMIT_GENERAL_WINDOW_MS ?? String(60 * 1000),
+    10
+  ),
+};
+
+function getRateLimitConfig(pathname: string) {
+  if (pathname.startsWith("/api/ai/")) {
+    return { ...AI_RATE_LIMIT, scope: "ai" as const };
+  }
+  return { ...GENERAL_RATE_LIMIT, scope: "general" as const };
+}
 
 function getAllowedOrigins(): string[] {
   const fromEnv = process.env.ALLOWED_ORIGINS?.split(",")
@@ -128,8 +144,10 @@ export function apiSecurityResponse(request: NextRequest): NextResponse | null {
     });
   }
 
-  const key = getRateLimitKey(request);
-  const result = checkRateLimit(key, DEVICE_RATE_LIMIT.max, DEVICE_RATE_LIMIT.windowMs);
+  const pathname = request.nextUrl.pathname;
+  const { max, windowMs, scope } = getRateLimitConfig(pathname);
+  const key = `${getRateLimitKey(request)}:${scope}`;
+  const result = checkRateLimit(key, max, windowMs);
 
   if (!result.ok) {
     return NextResponse.json(

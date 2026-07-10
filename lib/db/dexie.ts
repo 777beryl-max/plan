@@ -6,6 +6,9 @@ import type {
   DayTask,
   PomodoroSession,
   Companion,
+  CompanionProgress,
+  CompanionRewardLog,
+  AdventurerRewardLog,
   UserProfile,
   WeeklyReport,
 } from "@/lib/types";
@@ -17,6 +20,9 @@ export class BulletPlanDB extends Dexie {
   dayTasks!: Table<DayTask>;
   pomodoroSessions!: Table<PomodoroSession>;
   companions!: Table<Companion>;
+  companionProgress!: Table<CompanionProgress>;
+  companionRewardLogs!: Table<CompanionRewardLog>;
+  adventurerRewardLogs!: Table<AdventurerRewardLog>;
   userProfiles!: Table<UserProfile>;
   weeklyReports!: Table<WeeklyReport>;
 
@@ -29,6 +35,31 @@ export class BulletPlanDB extends Dexie {
       dayTasks: "id, goalId, weekPlanId, date, status, scheduledAt, updatedAt",
       pomodoroSessions: "id, taskId, startedAt, updatedAt",
       companions: "id, updatedAt",
+      userProfiles: "id, updatedAt",
+      weeklyReports: "id, year, week, updatedAt",
+    });
+    this.version(2).stores({
+      goals: "id, isActive, sortOrder, updatedAt",
+      monthPlans: "id, goalId, year, month, updatedAt",
+      weekPlans: "id, goalId, year, week, updatedAt",
+      dayTasks: "id, goalId, weekPlanId, date, status, scheduledAt, updatedAt",
+      pomodoroSessions: "id, taskId, startedAt, updatedAt",
+      companions: "id, updatedAt",
+      companionProgress: "id, updatedAt",
+      companionRewardLogs: "id, sourceType, sourceId, rewardedAt, updatedAt",
+      userProfiles: "id, updatedAt",
+      weeklyReports: "id, year, week, updatedAt",
+    });
+    this.version(3).stores({
+      goals: "id, isActive, sortOrder, updatedAt",
+      monthPlans: "id, goalId, year, month, updatedAt",
+      weekPlans: "id, goalId, year, week, updatedAt",
+      dayTasks: "id, goalId, weekPlanId, date, status, scheduledAt, updatedAt",
+      pomodoroSessions: "id, taskId, startedAt, updatedAt",
+      companions: "id, updatedAt",
+      companionProgress: "id, updatedAt",
+      companionRewardLogs: "id, sourceType, sourceId, rewardedAt, updatedAt",
+      adventurerRewardLogs: "id, sourceType, sourceId, rewardedAt, updatedAt",
       userProfiles: "id, updatedAt",
       weeklyReports: "id, year, week, updatedAt",
     });

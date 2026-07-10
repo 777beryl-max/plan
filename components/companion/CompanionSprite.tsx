@@ -1,5 +1,3 @@
-"use client";
-
 import type { CompanionMood, CompanionSpecies } from "@/lib/types";
 import { COMPANION_SPECIES } from "@/lib/types";
 import { PixelCompanionArt } from "@/components/companion/PixelCompanionArt";
@@ -13,9 +11,15 @@ interface CompanionSpriteProps {
 }
 
 const FRAME_SIZES = {
-  sm: { box: "w-16 h-16", art: 40 },
-  md: { box: "w-24 h-24", art: 64 },
-  lg: { box: "w-32 h-32", art: 88 },
+  sm: { box: "w-16 h-16", badge: 22 },
+  md: { box: "w-24 h-24", badge: 28 },
+  lg: { box: "w-32 h-32", badge: 32 },
+};
+
+const BADGE_OFFSET = {
+  sm: "-top-2.5 -right-1",
+  md: "-top-3 -right-1",
+  lg: "-top-3.5 -right-1",
 };
 
 /** 與冒險者頭像框同風格的夥伴展示 */
@@ -29,19 +33,28 @@ export function CompanionSprite({
   const frame = FRAME_SIZES[size];
 
   return (
-    <div
-      className={`adventure-companion-frame relative flex items-center justify-center ${frame.box} ${
-        animating ? "companion-bounce" : mood !== "sleepy" ? "companion-idle" : ""
-      }`}
-      style={
-        info?.color
-          ? { background: `linear-gradient(180deg, #fffef9 0%, ${info.color}33 100%)` }
-          : undefined
-      }
-    >
-      <PixelCompanionArt species={species} mood={mood} size={frame.art} className="max-w-[88%] max-h-[88%]" />
-      <span className="absolute -top-1 -right-1 adventure-mood-badge">
-        <MoodBadge mood={mood} size={size === "lg" ? 22 : 18} />
+    <div className="relative shrink-0">
+      <div
+        className={`adventure-companion-frame relative overflow-hidden ${frame.box} ${
+          animating ? "companion-bounce" : mood !== "sleepy" ? "companion-idle" : ""
+        }`}
+        style={
+          info?.color
+            ? { background: `linear-gradient(180deg, ${info.color}44 0%, ${info.color}88 100%)` }
+            : undefined
+        }
+      >
+        <PixelCompanionArt
+          species={species}
+          mood={mood}
+          className="absolute inset-0 w-full h-full companion-art-fill"
+        />
+      </div>
+      <span
+        className={`absolute ${BADGE_OFFSET[size]} adventure-mood-badge z-10`}
+        aria-hidden
+      >
+        <MoodBadge mood={mood} size={frame.badge} />
       </span>
     </div>
   );

@@ -1,22 +1,31 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { usePomodoroStore } from "@/stores/pomodoroStore";
 import { PixelCard } from "@/components/ui/PixelCard";
 import { formatMinutes } from "@/lib/utils";
+import {
+  computeTodayFocusStats,
+  computeWeekFocusStats,
+} from "@/lib/pomodoro/stats";
 
 export function FocusStats() {
   const sessions = usePomodoroStore((s) => s.sessions);
-  const focusMinutes = usePomodoroStore((s) => s.focusMinutes);
+  const completing = usePomodoroStore((s) => s.completing);
+  const loadSessions = usePomodoroStore((s) => s.loadSessions);
 
-  const today = useMemo(
-    () => usePomodoroStore.getState().getTodayStats(),
-    [sessions, focusMinutes]
-  );
-  const week = useMemo(
-    () => usePomodoroStore.getState().getWeekStats(),
-    [sessions, focusMinutes]
-  );
+  useEffect(() => {
+    void loadSessions();
+  }, [loadSessions]);
+
+  useEffect(() => {
+    if (!completing) {
+      void loadSessions();
+    }
+  }, [completing, loadSessions]);
+
+  const today = useMemo(() => computeTodayFocusStats(sessions), [sessions]);
+  const week = useMemo(() => computeWeekFocusStats(sessions), [sessions]);
 
   return (
     <PixelCard title="📊 專注統計">

@@ -152,6 +152,14 @@ export const usePlanStore = create<PlanStore>((set, get) => ({
     const newStatus = task.status === "done" ? "pending" : "done";
     await saveDayTask({ ...task, status: newStatus });
     await get().loadDayTasks();
+
+    if (newStatus === "done") {
+      const { useCompanionStore } = await import("@/stores/companionStore");
+      await useCompanionStore.getState().grantTreatReward("task", id);
+
+      const { useAppStore } = await import("@/stores/appStore");
+      await useAppStore.getState().grantAdventurerXp("task", id);
+    }
   },
 }));
 

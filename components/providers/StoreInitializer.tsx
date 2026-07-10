@@ -19,6 +19,7 @@ async function bootstrapStores() {
     usePlanStore.getState().loadAll(),
     usePomodoroStore.getState().loadSessions(),
     useCompanionStore.getState().loadCompanion(),
+    useCompanionStore.getState().loadProgress(),
     useAppStore.getState().loadProfile(),
     useAppStore.getState().loadWeeklyReports(),
   ]);
@@ -35,29 +36,37 @@ export function StoreInitializer({ children }: { children: React.ReactNode }) {
   const profileLoaded = useAppStore((s) => s.profile !== null);
   const profileLoading = useAppStore((s) => s.loading);
 
-  const authChecked = useRef(false);
-  const storesBootstrapped = useRef(false);
+  const sessionInitStarted = useRef(false);
+  const bootstrapPromise = useRef<Promise<void> | null>(null);
   const redirected = useRef(false);
 
+  const runBootstrapOnce = () => {
+    if (!bootstrapPromise.current) {
+      bootstrapPromise.current = bootstrapStores();
+    }
+    return bootstrapPromise.current;
+  };
+
   useEffect(() => {
-    if (authChecked.current) return;
-    authChecked.current = true;
+    if (sessionInitStarted.current) return;
+    sessionInitStarted.current = true;
 
     void (async () => {
       const ok = await checkSession();
-      if (ok) {
-        const currentUser = useAuthStore.getState().user;
-        if (currentUser) {
-          setActiveUserId(currentUser.id);
-          await pullFromServer();
-        }
-      }
-      if (useAuthStore.getState().user) {
-        storesBootstrapped.current = true;
-        await bootstrapStores();
-      }
+      const currentUser = useAuthStore.getState().user;
+      if (!ok || !currentUser) return;
+
+      setActiveUserId(currentUser.id);
+      await pullFromServer();
+      await runBootstrapOnce();
     })();
   }, [checkSession, pullFromServer]);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+    setActiveUserId(user.id);
+    void runBootstrapOnce();
+  }, [authLoading, user]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -72,15 +81,8 @@ export function StoreInitializer({ children }: { children: React.ReactNode }) {
 
     if (user && pathname === "/login") {
       router.replace("/");
-      return;
     }
-
-    if (user && !storesBootstrapped.current) {
-      storesBootstrapped.current = true;
-      setActiveUserId(user.id);
-      void pullFromServer().then(() => bootstrapStores());
-    }
-  }, [authLoading, user, pathname, router, pullFromServer]);
+  }, [authLoading, user, pathname, router]);
 
   useEffect(() => {
     if (authLoading || !user || profileLoading || !profileLoaded || redirected.current) return;

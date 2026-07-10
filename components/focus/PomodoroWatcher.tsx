@@ -7,6 +7,7 @@ import { usePomodoroStore } from "@/stores/pomodoroStore";
 export function PomodoroWatcher() {
   useEffect(() => {
     const store = usePomodoroStore.getState();
+    store.initPreferences();
     store.hydrate();
     store.syncTimer();
 

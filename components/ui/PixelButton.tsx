@@ -34,7 +34,7 @@ export function PixelButton({
 }: PixelButtonProps) {
   return (
     <button
-      className={`pixel-btn font-body font-bold ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`pixel-btn font-body font-bold inline-flex items-center justify-center text-center ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}

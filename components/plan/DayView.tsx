@@ -23,6 +23,7 @@ import { PixelButton } from "@/components/ui/PixelButton";
 import { PixelInput } from "@/components/ui/PixelInput";
 
 import { TimeGrid } from "@/components/plan/TimeGrid";
+import { getWeekGoalBlessing } from "@/lib/messages/blessings";
 
 
 
@@ -166,9 +167,9 @@ export function DayView() {
 
           <PixelCard title="⚔️ 主線任務" accent={weekLinkedTasks.length > 0}>
 
-            <p className="font-body text-base text-[var(--pixel-text-muted)] mb-3 -mt-1">
+            <p className="font-body text-base text-[var(--pixel-accent)] mb-3 -mt-1 leading-relaxed">
 
-              本週 {stageLabel} 的關卡目標，週一～週日每日同步
+              {getWeekGoalBlessing(stageLabel, currentDate)}
 
             </p>
 
