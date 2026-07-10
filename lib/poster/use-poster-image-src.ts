@@ -2,27 +2,44 @@ import { useEffect, useState } from "react";
 import { persistAvatarImageUrl } from "@/lib/avatar/persist-image";
 
 export interface PosterImageState {
-  /** Resolved src safe for poster display/export (data URL or same-origin path). */
   src?: string;
-  /** False while resolving a remote avatar URL. */
   ready: boolean;
+}
+
+interface UsePosterImageSrcOptions {
+  /** Same-origin URL (e.g. /api/avatar/image) — reliable on mobile export. */
+  proxySrc?: string;
 }
 
 /**
  * Resolve poster character images before rendering.
- * Never passes expiring OpenAI https URLs to the poster <img>.
+ * Remote OpenAI URLs are never passed directly to poster <img>.
  */
-export function usePosterImageSrc(raw?: string): PosterImageState {
-  const [src, setSrc] = useState<string | undefined>(
-    raw && (raw.startsWith("data:") || raw.startsWith("/")) ? raw : undefined
-  );
-  const [ready, setReady] = useState(
-    !raw || raw.startsWith("data:") || raw.startsWith("/")
-  );
+export function usePosterImageSrc(
+  raw?: string,
+  options?: UsePosterImageSrcOptions
+): PosterImageState {
+  const proxySrc = options?.proxySrc;
+  const [src, setSrc] = useState<string | undefined>(() => {
+    if (proxySrc) return proxySrc;
+    if (raw && (raw.startsWith("data:") || raw.startsWith("/"))) return raw;
+    return undefined;
+  });
+  const [ready, setReady] = useState(() => {
+    if (!raw) return true;
+    if (proxySrc) return true;
+    return raw.startsWith("data:") || raw.startsWith("/");
+  });
 
   useEffect(() => {
     if (!raw) {
       setSrc(undefined);
+      setReady(true);
+      return;
+    }
+
+    if (proxySrc) {
+      setSrc(proxySrc);
       setReady(true);
       return;
     }
@@ -46,7 +63,7 @@ export function usePosterImageSrc(raw?: string): PosterImageState {
     return () => {
       cancelled = true;
     };
-  }, [raw]);
+  }, [raw, proxySrc]);
 
   return { src, ready };
 }

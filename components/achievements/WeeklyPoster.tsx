@@ -6,6 +6,7 @@ import { getCompletionRate, formatWeekDateRange, getShareText } from "@/lib/week
 import { ProgressChart } from "./ProgressChart";
 import { useAppStore } from "@/stores/appStore";
 import { useCompanionStore } from "@/stores/companionStore";
+import { useAuthStore } from "@/stores/authStore";
 import { COMPANION_IMAGE_SRC, COMPANION_IMAGE_LABEL } from "@/lib/companion/companion-images";
 import { capturePosterPng } from "@/lib/poster/capture";
 import { copyPosterPngToClipboard, sharePosterPng } from "@/lib/poster/share";
@@ -127,7 +128,7 @@ function PosterCharacterFrame({
         aria-hidden
         style={posterPixelFrameShadowStyle(POSTER_CHARACTER_SIZE, POSTER_FRAME_RADIUS)}
       />
-      <div style={POSTER_PIXEL_FRAME_FACE_STYLE}>
+      <div data-poster-frame-face style={POSTER_PIXEL_FRAME_FACE_STYLE}>
         {showImage ? (
           <img
             data-poster-char
@@ -250,10 +251,18 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
   const shareBlobRef = useRef<Blob | null>(null);
   const profile = useAppStore((s) => s.profile);
   const updateProfile = useAppStore((s) => s.updateProfile);
+  const user = useAuthStore((s) => s.user);
   const companion = useCompanionStore((s) => s.companion);
   const displayName = profile?.displayName ?? "冒險者";
   const rate = getCompletionRate(report.plannedCount, report.completedCount);
-  const captainImage = usePosterImageSrc(profile?.aiCharacterUrl);
+
+  const captainRaw = profile?.aiCharacterUrl;
+  const captainProxy =
+    user && captainRaw && !captainRaw.startsWith("data:") && !captainRaw.startsWith("/")
+      ? "/api/avatar/image"
+      : undefined;
+
+  const captainImage = usePosterImageSrc(captainRaw, { proxySrc: captainProxy });
   const companionImage = usePosterImageSrc(
     companion ? COMPANION_IMAGE_SRC[companion.species] : undefined
   );

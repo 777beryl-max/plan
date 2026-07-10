@@ -3,9 +3,7 @@ import { resolvePosterImageUrl } from "@/lib/poster/embed-images";
 /** Save an existing avatar URL as a data URL — does not use AI generation quota. */
 export async function persistAvatarImageUrl(currentUrl: string): Promise<string | null> {
   if (currentUrl.startsWith("data:")) return currentUrl;
-
-  const fromClient = await resolvePosterImageUrl(currentUrl);
-  if (fromClient) return fromClient;
+  if (currentUrl.startsWith("/")) return currentUrl;
 
   try {
     const response = await fetch("/api/avatar/save-image", {
@@ -14,12 +12,18 @@ export async function persistAvatarImageUrl(currentUrl: string): Promise<string 
       credentials: "same-origin",
       body: JSON.stringify({ url: currentUrl }),
     });
-    if (!response.ok) return null;
-    const data = (await response.json()) as { dataUrl?: string };
-    return typeof data.dataUrl === "string" ? data.dataUrl : null;
+    if (response.ok) {
+      const data = (await response.json()) as { dataUrl?: string };
+      if (typeof data.dataUrl === "string") return data.dataUrl;
+    }
   } catch {
-    return null;
+    // Fall through to client-side resolve.
   }
+
+  const fromClient = await resolvePosterImageUrl(currentUrl);
+  if (fromClient) return fromClient;
+
+  return null;
 }
 
 export function imageElementToDataUrl(img: HTMLImageElement): string | null {

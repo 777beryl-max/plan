@@ -1,4 +1,8 @@
 import { embedPosterImages } from "@/lib/poster/embed-images";
+import {
+  collectPosterImageLayers,
+  paintPosterImageLayers,
+} from "@/lib/poster/compose-images";
 import { preparePosterForExport } from "@/lib/poster/prepare-export";
 
 const CAPTURE_SCALE = 2;
@@ -19,6 +23,13 @@ async function preloadImages(urls: string[]) {
     urls.map(
       (url) =>
         new Promise<void>((resolve) => {
+          if (url.startsWith("/api/")) {
+            fetch(url, { credentials: "same-origin" })
+              .then(() => resolve())
+              .catch(() => resolve());
+            return;
+          }
+
           const img = new Image();
           img.crossOrigin = "anonymous";
           img.onload = () => resolve();
@@ -35,10 +46,6 @@ function waitForPaint() {
   });
 }
 
-function dataUrlToBlob(dataUrl: string): Promise<Blob> {
-  return fetch(dataUrl).then((response) => response.blob());
-}
-
 function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -48,25 +55,23 @@ function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
-async function captureWithHtmlToImage(element: HTMLElement): Promise<Blob> {
-  const { toPng } = await import("html-to-image");
-  const dataUrl = await toPng(element, {
+async function captureWithHtmlToImage(element: HTMLElement): Promise<HTMLCanvasElement> {
+  const { toCanvas } = await import("html-to-image");
+  return toCanvas(element, {
     pixelRatio: CAPTURE_SCALE,
     backgroundColor: "#ffe8b8",
     cacheBust: true,
     skipFonts: false,
   });
-  return dataUrlToBlob(dataUrl);
 }
 
-async function captureWithHtml2Canvas(element: HTMLElement): Promise<Blob> {
+async function captureWithHtml2Canvas(element: HTMLElement): Promise<HTMLCanvasElement> {
   const html2canvas = (await import("html2canvas")).default;
-  const canvas = await html2canvas(element, {
+  return html2canvas(element, {
     backgroundColor: "#ffe8b8",
     scale: CAPTURE_SCALE,
     useCORS: true,
   });
-  return canvasToBlob(canvas);
 }
 
 async function waitForPosterImages(element: HTMLElement) {
@@ -99,11 +104,18 @@ export async function capturePosterPng(element: HTMLElement): Promise<Blob> {
     await waitForPosterImages(element);
     await waitForPaint();
 
+    const imageLayers = await collectPosterImageLayers(element);
+
+    let canvas: HTMLCanvasElement;
     try {
-      return await captureWithHtmlToImage(element);
+      canvas = await captureWithHtmlToImage(element);
     } catch {
-      return await captureWithHtml2Canvas(element);
+      canvas = await captureWithHtml2Canvas(element);
     }
+
+    paintPosterImageLayers(canvas, imageLayers, CAPTURE_SCALE);
+
+    return canvasToBlob(canvas);
   } finally {
     restore();
   }

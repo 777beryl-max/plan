@@ -84,6 +84,27 @@ export async function embedPosterImages(element: HTMLElement) {
       const url = img.getAttribute("data-poster-src") || img.currentSrc || img.src;
       if (!url || url.startsWith("data:")) return;
 
+      if (url.startsWith("/api/")) {
+        try {
+          const response = await fetch(url, { credentials: "same-origin", cache: "no-store" });
+          if (!response.ok) return;
+          const blob = await response.blob();
+          const dataUrl = await new Promise<string | null>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+          });
+          if (!dataUrl) return;
+          img.setAttribute("data-poster-src", dataUrl);
+          img.src = dataUrl;
+        } catch {
+          return;
+        }
+        return;
+      }
+
       const dataUrl = await urlToDataUrl(url);
       if (!dataUrl) return;
 

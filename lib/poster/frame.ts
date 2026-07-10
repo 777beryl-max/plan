@@ -16,7 +16,7 @@ export const POSTER_PIXEL_FRAME_FACE_STYLE = {
   overflow: "hidden" as const,
   boxSizing: "border-box" as const,
   background: POSTER_COLORS.white,
-};
+} as const;
 
 export function posterPixelFrameShellStyle(width: number, height: number) {
   return {
