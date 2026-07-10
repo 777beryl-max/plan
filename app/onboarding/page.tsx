@@ -7,10 +7,10 @@ import { CHARACTER_STYLES, CHARACTER_GENDERS, type CharacterStyle, type Characte
 import { PixelCard } from "@/components/ui/PixelCard";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { PixelInput } from "@/components/ui/PixelInput";
-import {
-  ReferenceImageUpload,
+import { ReferenceImageUpload,
   type ReferenceImageData,
 } from "@/components/onboarding/ReferenceImageUpload";
+import { AdventureAvatar } from "@/components/ui/AdventureAvatar";
 import { getDeviceId } from "@/lib/device-id";
 
 export default function OnboardingPage() {
@@ -110,7 +110,7 @@ export default function OnboardingPage() {
       <div className="adventure-content w-full max-w-md space-y-4">
         <div className="text-center mb-6">
           <p className="text-3xl mb-2 float-gentle">🗡️</p>
-          <h1 className="game-banner-title font-pixel text-sm leading-relaxed">
+          <h1 className="game-banner-title leading-relaxed">
             人生冒險遊戲
           </h1>
           <p className="font-body text-lg text-[var(--pixel-text-muted)] mt-2">
@@ -143,11 +143,11 @@ export default function OnboardingPage() {
           <PixelCard title="選擇角色風格" accent>
             {profile?.aiCharacterUrl ? (
               <div className="text-center py-4">
-                <img
+                <AdventureAvatar
                   src={profile.aiCharacterUrl}
                   alt="已有角色"
-                  className="w-24 h-24 border-4 border-[var(--pixel-accent)] mx-auto"
-                  style={{ imageRendering: "pixelated" }}
+                  size="md"
+                  className="mx-auto"
                 />
                 <p className="font-body text-lg text-[var(--pixel-text-muted)] mt-3">
                   角色已生成，不可重複生成
@@ -159,7 +159,7 @@ export default function OnboardingPage() {
             ) : (
               <>
             <p className="font-body text-base text-[var(--pixel-text-muted)] mb-3">
-              為你生成獨特的像素冒險者（僅首次生成）
+              生成可愛冒險風格角色，與夥伴、基地畫面一致（僅首次）
             </p>
 
             <p className="text-label text-[var(--pixel-accent)] mb-2">性別</p>
@@ -237,13 +237,8 @@ export default function OnboardingPage() {
         {step === 2 && characterUrl && (
           <PixelCard title="角色覺醒！" accent>
             <div className="flex flex-col items-center gap-4 py-4">
-              <img
-                src={characterUrl}
-                alt="你的角色"
-                className="w-32 h-32 border-4 border-[var(--pixel-accent)]"
-                style={{ imageRendering: "pixelated" }}
-              />
-              <p className="font-pixel text-sm text-[var(--pixel-accent)]">
+              <AdventureAvatar src={characterUrl} alt="你的角色" size="lg" />
+              <p className="text-display text-[var(--pixel-accent)]">
                 {displayName}
               </p>
               <p className="font-body text-lg text-[var(--pixel-text-muted)] text-center">

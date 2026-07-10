@@ -7,6 +7,7 @@ import { ProgressChart } from "./ProgressChart";
 import { useAppStore } from "@/stores/appStore";
 import { useCompanionStore } from "@/stores/companionStore";
 import { CompanionSprite } from "@/components/companion/CompanionSprite";
+import { AdventureAvatar } from "@/components/ui/AdventureAvatar";
 
 interface WeeklyPosterProps {
   report: WeeklyReport;
@@ -64,11 +65,10 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
 
         <div className="flex justify-center items-end gap-4 mb-4">
           {profile?.aiCharacterUrl && (
-            <img
+            <AdventureAvatar
               src={profile.aiCharacterUrl}
               alt="角色"
-              className="w-16 h-16 border-4 border-[var(--pixel-border)]"
-              style={{ imageRendering: "pixelated" }}
+              size="sm"
             />
           )}
           {companion && (

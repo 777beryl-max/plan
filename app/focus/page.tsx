@@ -52,7 +52,7 @@ export default function FocusPage() {
           >
             <div className="w-40 h-40 rounded-full bg-white flex flex-col items-center justify-center border-[3px] border-[var(--pixel-border-soft)]">
               <span
-                className="font-pixel text-xl"
+                className="text-stat text-2xl"
                 style={{ color: phaseColor[phase] }}
               >
                 {formatTimer(secondsLeft)}

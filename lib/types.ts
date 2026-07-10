@@ -86,12 +86,12 @@ export const COMPANION_SPECIES: {
   emoji: string;
   color: string;
 }[] = [
-  { id: "cat", label: "貓咪", emoji: "🐱", color: "#f39c12" },
-  { id: "dog", label: "狗狗", emoji: "🐶", color: "#e67e22" },
-  { id: "fox", label: "狐狸", emoji: "🦊", color: "#e74c3c" },
-  { id: "rabbit", label: "兔子", emoji: "🐰", color: "#fd79a8" },
-  { id: "bear", label: "熊熊", emoji: "🐻", color: "#a0522d" },
-  { id: "owl", label: "貓頭鷹", emoji: "🦉", color: "#8e44ad" },
+  { id: "cat", label: "貓咪", emoji: "🐱", color: "#ff9f43" },
+  { id: "dog", label: "狗狗", emoji: "🐶", color: "#e8b86d" },
+  { id: "fox", label: "狐狸", emoji: "🦊", color: "#ff9f43" },
+  { id: "rabbit", label: "兔子", emoji: "🐰", color: "#ff6b9d" },
+  { id: "bear", label: "熊熊", emoji: "🐻", color: "#c9a66b" },
+  { id: "owl", label: "貓頭鷹", emoji: "🦉", color: "#a88fd4" },
 ];
 
 export const CHARACTER_STYLES: { id: CharacterStyle; label: string; desc: string }[] = [

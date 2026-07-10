@@ -18,6 +18,7 @@ const FRAME_SIZES = {
   lg: { box: "w-32 h-32", art: 88 },
 };
 
+/** 與冒險者頭像框同風格的夥伴展示 */
 export function CompanionSprite({
   species,
   mood,
@@ -29,14 +30,18 @@ export function CompanionSprite({
 
   return (
     <div
-      className={`relative flex items-center justify-center border-[3px] border-[var(--pixel-border)] rounded-2xl bg-gradient-to-b from-white to-[var(--pixel-surface-2)] ${frame.box} ${
+      className={`adventure-companion-frame relative flex items-center justify-center ${frame.box} ${
         animating ? "companion-bounce" : mood !== "sleepy" ? "companion-idle" : ""
       }`}
-      style={{ boxShadow: "3px 3px 0 var(--pixel-border-soft)" }}
+      style={
+        info?.color
+          ? { background: `linear-gradient(180deg, #fffef9 0%, ${info.color}33 100%)` }
+          : undefined
+      }
     >
       <PixelCompanionArt species={species} mood={mood} size={frame.art} />
-      <span className="absolute -top-1 -right-1 border-2 border-[var(--pixel-border)] rounded-lg bg-white p-0.5">
-        <MoodBadge mood={mood} size={size === "lg" ? 24 : 18} />
+      <span className="absolute -top-1 -right-1 adventure-mood-badge">
+        <MoodBadge mood={mood} size={size === "lg" ? 22 : 18} />
       </span>
     </div>
   );

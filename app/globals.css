@@ -22,8 +22,8 @@
   --pixel-mp: #4ecdc4;
   --pixel-grass: #7ed957;
 
-  --pixel-text: #5d4037;
-  --pixel-text-muted: #9a7b5c;
+  --pixel-text: #4a3728;
+  --pixel-text-muted: #7a6552;
   --pixel-text-light: #fff8ee;
 
   --pixel-inset: rgba(255, 255, 255, 0.72);
@@ -36,12 +36,8 @@
 @theme inline {
   --color-background: var(--pixel-bg);
   --color-foreground: var(--pixel-text);
-  --font-sans: var(--font-game);
-  --font-mono: var(--font-press-start);
-}
-
-* {
-  image-rendering: pixelated;
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-round);
 }
 
 .pixel-sprite svg {
@@ -55,12 +51,52 @@ html {
 
 body {
   color: var(--pixel-text);
-  font-family: var(--font-game), "PingFang TC", "Microsoft JhengHei", sans-serif;
-  font-size: 1.0625rem;
+  font-family: var(--font-body), "PingFang TC", "Microsoft JhengHei UI", "Noto Sans TC", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.font-pixel {
+  font-family: var(--font-round), var(--font-body), sans-serif;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.font-body {
+  font-family: var(--font-body), "PingFang TC", "Microsoft JhengHei UI", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 500;
   line-height: 1.55;
 }
 
-/* 冒險世界背景：天空漸層 + 雲朵 */
+.text-label {
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+}
+
+.text-caption {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.text-display {
+  font-family: var(--font-body), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.text-stat {
+  font-family: var(--font-round), var(--font-body), sans-serif;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
 .adventure-world {
   min-height: 100vh;
   background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
@@ -88,36 +124,6 @@ body {
 .adventure-content {
   position: relative;
   z-index: 1;
-}
-
-.font-pixel {
-  font-family: var(--font-press-start), monospace;
-  line-height: 1.65;
-}
-
-.font-body {
-  font-family: var(--font-game), "PingFang TC", "Microsoft JhengHei", sans-serif;
-  font-size: 1.0625rem;
-  line-height: 1.5;
-}
-
-.text-label {
-  font-family: var(--font-press-start), monospace;
-  font-size: 0.75rem;
-  line-height: 1.6;
-  letter-spacing: 0.02em;
-}
-
-.text-caption {
-  font-size: 0.9375rem;
-  line-height: 1.45;
-}
-
-.text-display {
-  font-family: var(--font-game), sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.4;
 }
 
 /* ── 遊戲 UI 元件 ── */
@@ -185,7 +191,9 @@ body {
 
 .game-banner-title {
   color: var(--pixel-accent);
-  text-shadow: 2px 2px 0 var(--pixel-border-soft);
+  font-family: var(--font-body), sans-serif;
+  font-weight: 800;
+  font-size: 1.0625rem;
 }
 
 /* 底部冒險選單 */
@@ -334,4 +342,46 @@ body {
 @keyframes twinkle {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
+}
+
+/* 冒險者頭像框（與夥伴同系列） */
+.adventure-avatar-frame {
+  border: 3px solid var(--pixel-border);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffef9 0%, var(--pixel-surface-2) 55%, var(--sky-mid) 100%);
+  box-shadow: var(--shadow-game);
+  overflow: hidden;
+  padding: 4px;
+}
+
+.adventure-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  image-rendering: auto;
+}
+
+.adventure-companion-frame {
+  border: 3px solid var(--pixel-border);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffef9 0%, var(--pixel-surface-2) 55%, var(--sky-mid) 100%);
+  box-shadow: var(--shadow-game);
+}
+
+.adventure-mood-badge {
+  border: 2px solid var(--pixel-border);
+  border-radius: 8px;
+  background: white;
+  padding: 2px;
+  box-shadow: 1px 1px 0 var(--pixel-border-soft);
+}
+
+.adventure-placeholder {
+  border: 3px dashed var(--pixel-border-soft);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

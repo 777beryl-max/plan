@@ -43,7 +43,7 @@ export default function LoginPage() {
       <div className="adventure-content w-full max-w-md space-y-4">
         <div className="text-center">
           <p className="text-4xl mb-2 float-gentle">⚔️</p>
-          <h1 className="game-banner-title font-pixel text-base leading-relaxed">
+          <h1 className="game-banner-title leading-relaxed">
             人生冒險遊戲
           </h1>
           <p className="font-body text-sm text-[var(--pixel-text-muted)] mt-2">

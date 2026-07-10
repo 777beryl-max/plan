@@ -42,7 +42,8 @@ export async function describeReferenceImage(
           {
             type: "text",
             text: [
-              "Analyze this reference image for generating a pixel art RPG hero avatar.",
+              "Analyze this reference image for a cute chibi adventure game hero avatar.",
+              "The art style should match a cozy kawaii RPG with sky blue, cream, coral and mint pastel colors.",
               "Describe only visual traits: hairstyle, hair color, skin tone, eye features,",
               "clothing style and colors, accessories, expression, and overall vibe.",
               "Output one concise English comma-separated phrase list for image generation.",

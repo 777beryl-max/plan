@@ -13,6 +13,7 @@ import { getWeekStageIndex, WEEK_STAGE_LABELS } from "@/lib/rules/plan";
 import { PixelCard } from "@/components/ui/PixelCard";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { CompanionSprite } from "@/components/companion/CompanionSprite";
+import { AdventureAvatar } from "@/components/ui/AdventureAvatar";
 import { formatMinutes } from "@/lib/utils";
 import { COMPANION_SPECIES, type CompanionMood, type CompanionSpecies } from "@/lib/types";
 
@@ -230,15 +231,14 @@ function SquadScene({
           borderAccent="accent"
           image={
             profile?.aiCharacterUrl ? (
-              <img
+              <AdventureAvatar
                 src={profile.aiCharacterUrl}
                 alt="冒險角色"
-                className="w-[7.5rem] h-[7.5rem] border-4 border-[var(--pixel-border)] object-cover"
-                style={{ imageRendering: "pixelated" }}
+                size="md"
               />
             ) : (
-              <div className="w-[7.5rem] h-[7.5rem] border-[3px] border-dashed border-[var(--pixel-border-soft)] rounded-2xl bg-white/70 flex items-center justify-center">
-                <span className="text-4xl opacity-50">🧙</span>
+              <div className="adventure-placeholder w-[7.5rem] h-[7.5rem]">
+                <span className="text-3xl opacity-50">🧙</span>
               </div>
             )
           }
@@ -253,7 +253,7 @@ function SquadScene({
             companion ? (
               <CompanionSprite species={companion.species} mood={companion.mood} size="md" />
             ) : (
-              <div className="w-24 h-24 border-[3px] border-dashed border-[var(--pixel-border-soft)] rounded-2xl bg-white/70 flex items-center justify-center">
+              <div className="adventure-placeholder w-24 h-24">
                 <span className="text-2xl opacity-40">🐾</span>
               </div>
             )

@@ -1,3 +1,4 @@
+import { ADVENTURE_COLORS, COMPANION_PIXEL } from "@/lib/theme/adventure-style";
 import type { CompanionSpecies } from "@/lib/types";
 
 /** 16×16 像素圖：. 透明 */
@@ -8,21 +9,21 @@ export interface SpeciesSprite {
   palette: Record<string, string>;
 }
 
-/** 共用可愛色：腮紅、高光、大眼睛 */
 const CUTE = {
-  R: "#ffb3c6",
-  r: "#ff8fab",
-  H: "#fff5e6",
-  h: "#ffeaa7",
+  R: COMPANION_PIXEL.blush,
+  r: COMPANION_PIXEL.blushDeep,
+  H: COMPANION_PIXEL.shine,
+  h: COMPANION_PIXEL.highlight,
 };
 
 const cat: SpeciesSprite = {
   palette: {
-    O: "#ffb347",
-    o: "#ff9f1c",
-    W: "#fff8f0",
-    K: "#4a3728",
-    P: "#ffd89b",
+    O: ADVENTURE_COLORS.accent,
+    o: "#ff8c42",
+    W: COMPANION_PIXEL.cream,
+    K: COMPANION_PIXEL.eye,
+    P: ADVENTURE_COLORS.surface2,
+    B: ADVENTURE_COLORS.skyDeep,
     ...CUTE,
   },
   rows: [
@@ -33,6 +34,7 @@ const cat: SpeciesSprite = {
     "..OWWKooKWWOOO..",
     "..OOORRRRRROOO..",
     "...OOOOOOOOOO...",
+    "...OBBBBBBBBBO..",
     "....OOOOOOOO....",
     ".....OOOOOO.....",
     "......OOOO......",
@@ -40,18 +42,18 @@ const cat: SpeciesSprite = {
     "....OO....OO....",
     "...OO......OO...",
     "..OO........OO..",
-    ".OO..........OO.",
     "................",
   ],
 };
 
 const dog: SpeciesSprite = {
   palette: {
-    O: "#d4a574",
-    o: "#c4956a",
-    W: "#fff8f0",
-    K: "#4a3728",
-    P: "#e8c9a0",
+    O: "#e8b86d",
+    o: "#d4a05a",
+    W: COMPANION_PIXEL.cream,
+    K: COMPANION_PIXEL.eye,
+    P: ADVENTURE_COLORS.surface2,
+    B: ADVENTURE_COLORS.skyDeep,
     ...CUTE,
   },
   rows: [
@@ -62,6 +64,7 @@ const dog: SpeciesSprite = {
     "..OWWKooKWWOOO..",
     "..OOORRRRRROOO..",
     "...OOOOOOOOOO...",
+    "...OBBBBBBBBBO..",
     "....OOOOOOOO....",
     ".....OOOOOO.....",
     "......OOOO......",
@@ -69,18 +72,18 @@ const dog: SpeciesSprite = {
     "....OO....OO....",
     "...OO......OO...",
     "..OO........OO..",
-    ".OO..........OO.",
     "................",
   ],
 };
 
 const fox: SpeciesSprite = {
   palette: {
-    O: "#ff7b54",
-    o: "#ff6b45",
-    W: "#fff8f0",
-    K: "#4a3728",
-    P: "#ffa07a",
+    O: ADVENTURE_COLORS.accent,
+    o: "#ff8c5a",
+    W: COMPANION_PIXEL.cream,
+    K: COMPANION_PIXEL.eye,
+    P: "#ffc9a8",
+    B: ADVENTURE_COLORS.skyDeep,
     ...CUTE,
   },
   rows: [
@@ -91,6 +94,7 @@ const fox: SpeciesSprite = {
     "..OOOWWKooKOOO..",
     "..OOOORRRRRROO..",
     "...OOOOOWWWWOO..",
+    "...OBBBBBBBBBO..",
     "....OOOOOOOO....",
     ".....OOOOOO.....",
     "......OOOO......",
@@ -98,18 +102,18 @@ const fox: SpeciesSprite = {
     "....OO....OO....",
     "...OO......OO...",
     "..OO........OO..",
-    ".OO..........OO.",
     "................",
   ],
 };
 
 const rabbit: SpeciesSprite = {
   palette: {
-    O: "#ffb8d0",
-    o: "#ff9ec5",
-    W: "#fff8f0",
-    K: "#4a3728",
+    O: ADVENTURE_COLORS.accent2,
+    o: "#ff85b3",
+    W: COMPANION_PIXEL.cream,
+    K: COMPANION_PIXEL.eye,
     P: "#ffd4e5",
+    B: ADVENTURE_COLORS.skyDeep,
     ...CUTE,
   },
   rows: [
@@ -120,7 +124,7 @@ const rabbit: SpeciesSprite = {
     "..OOOWWWWWWOO...",
     "..OWWKooKWWOO...",
     "..OOORRRRRROO...",
-    "...OOOOOOOOO....",
+    "...OBBBBBBBBBO..",
     "....OOOOOOOO....",
     ".....OOOOOO.....",
     "......OOOO......",
@@ -134,11 +138,12 @@ const rabbit: SpeciesSprite = {
 
 const bear: SpeciesSprite = {
   palette: {
-    O: "#c49a6c",
-    o: "#a67c52",
-    W: "#fff8f0",
-    K: "#4a3728",
-    P: "#ddb892",
+    O: "#c9a66b",
+    o: "#b08d55",
+    W: COMPANION_PIXEL.cream,
+    K: COMPANION_PIXEL.eye,
+    P: ADVENTURE_COLORS.surface2,
+    B: ADVENTURE_COLORS.skyDeep,
     ...CUTE,
   },
   rows: [
@@ -149,6 +154,7 @@ const bear: SpeciesSprite = {
     "..OWWKooKWWOOO..",
     "..OOORRRRRROOO..",
     "...OOOOOOOOOO...",
+    "...OBBBBBBBBBO..",
     "....OOOOOOOO....",
     ".....OOOOOO.....",
     "......OOOO......",
@@ -156,19 +162,19 @@ const bear: SpeciesSprite = {
     "....OO....OO....",
     "...OO......OO...",
     "..OO........OO..",
-    ".OO..........OO.",
     "................",
   ],
 };
 
 const owl: SpeciesSprite = {
   palette: {
-    O: "#b19cd9",
-    o: "#9b7ec8",
-    W: "#fff8f0",
-    K: "#4a3728",
-    P: "#d4c4f0",
-    Y: "#ffe066",
+    O: "#a88fd4",
+    o: "#8f74c4",
+    W: COMPANION_PIXEL.cream,
+    K: COMPANION_PIXEL.eye,
+    P: "#e0d4f5",
+    B: ADVENTURE_COLORS.skyDeep,
+    Y: ADVENTURE_COLORS.gold,
     ...CUTE,
   },
   rows: [
@@ -179,6 +185,7 @@ const owl: SpeciesSprite = {
     "..OWWKooKWWOOO..",
     "..OOOYRRRRYOOO..",
     "...OOOOOOOOOO...",
+    "...OBBBBBBBBBO..",
     "....OOOOOOOO....",
     ".....OOOOOO.....",
     "......OOOO......",
@@ -186,7 +193,6 @@ const owl: SpeciesSprite = {
     "....OO....OO....",
     "...OO......OO...",
     "..OO........OO..",
-    ".OO..........OO.",
     "................",
   ],
 };

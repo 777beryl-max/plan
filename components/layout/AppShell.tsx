@@ -21,7 +21,7 @@ export function AppShell({ children }: AppShellProps) {
                 ⚔️
               </span>
               <div className="min-w-0">
-                <h1 className="game-banner-title font-pixel text-sm leading-relaxed">
+                <h1 className="game-banner-title leading-relaxed">
                   人生冒險遊戲
                 </h1>
                 <p className="font-body text-sm text-[var(--pixel-text-muted)] mt-0.5 truncate">

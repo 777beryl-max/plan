@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Press_Start_2P, ZCOOL_KuaiLe } from "next/font/google";
+import { Noto_Sans_TC, Nunito } from "next/font/google";
 import "./globals.css";
 import { ConditionalShell } from "@/components/layout/ConditionalShell";
 import { PwaProvider } from "@/components/providers/PwaProvider";
 import { StoreInitializer } from "@/components/providers/StoreInitializer";
 
-const pressStart = Press_Start_2P({
-  weight: "400",
+const notoSansTC = Noto_Sans_TC({
+  weight: ["400", "500", "700"],
   subsets: ["latin"],
-  variable: "--font-press-start",
+  variable: "--font-body",
+  display: "swap",
 });
 
-const gameFont = ZCOOL_KuaiLe({
-  weight: "400",
+const nunito = Nunito({
+  weight: ["600", "700", "800"],
   subsets: ["latin"],
-  variable: "--font-game",
+  variable: "--font-round",
+  display: "swap",
 });
 
 const APP_NAME = "人生冒險遊戲";
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
   description: "像素風 RPG 目標管理 — 月/周/日計畫、番茄鐘、動物夥伴、AI 角色",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: APP_NAME,
   },
   formatDetection: {
@@ -58,8 +60,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-TW" className={`${pressStart.variable} ${gameFont.variable} h-full`}>
-      <body className="min-h-full">
+    <html lang="zh-TW" className={`${notoSansTC.variable} ${nunito.variable} h-full`}>
+      <body className="min-h-full antialiased">
         <PwaProvider>
           <StoreInitializer>
             <ConditionalShell>{children}</ConditionalShell>
