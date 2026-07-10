@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type CSSProperties } from "react";
+import { useRef, useState, useEffect, type CSSProperties } from "react";
 import type { WeeklyReport } from "@/lib/types";
 import { getCompletionRate, formatWeekDateRange, getShareText } from "@/lib/weekly-report";
 import { ProgressChart } from "./ProgressChart";
@@ -8,6 +8,7 @@ import { useAppStore } from "@/stores/appStore";
 import { useCompanionStore } from "@/stores/companionStore";
 import { COMPANION_IMAGE_SRC, COMPANION_IMAGE_LABEL } from "@/lib/companion/companion-images";
 import { capturePosterPng } from "@/lib/poster/capture";
+import { copyPosterPngToClipboard, sharePosterPng } from "@/lib/poster/share";
 import {
   POSTER_COLORS,
   POSTER_CHARACTER_SIZE,
@@ -151,6 +152,7 @@ function ShareSheet({
   open,
   onClose,
   onNativeShare,
+  onCopyImage,
   onCopyText,
   onDownloadImage,
   sharing,
@@ -158,6 +160,7 @@ function ShareSheet({
   open: boolean;
   onClose: () => void;
   onNativeShare: () => void;
+  onCopyImage: () => void;
   onCopyText: () => void;
   onDownloadImage: () => void;
   sharing: boolean;
@@ -176,9 +179,12 @@ function ShareSheet({
         role="dialog"
         aria-labelledby="share-sheet-title"
       >
-        <h3 id="share-sheet-title" className="text-label mb-3 text-center">
+        <h3 id="share-sheet-title" className="text-label mb-1 text-center">
           分享週冒險戰報
         </h3>
+        <p className="mb-3 text-center font-body text-sm text-[var(--pixel-text-muted)]">
+          以 PNG 圖片分享到 LINE、訊息等 App
+        </p>
         <div className="space-y-2">
           <button
             type="button"
@@ -186,7 +192,14 @@ function ShareSheet({
             disabled={sharing}
             className="pixel-btn w-full border-4 border-[var(--pixel-border)] bg-[var(--pixel-mp)] px-4 py-3 text-label text-white disabled:opacity-60"
           >
-            {sharing ? "準備中..." : "傳送到其他 App"}
+            {sharing ? "準備中..." : "分享 PNG 到其他 App"}
+          </button>
+          <button
+            type="button"
+            onClick={onCopyImage}
+            className="pixel-btn w-full border-4 border-[var(--pixel-border)] bg-[var(--pixel-bg)] px-4 py-3 text-label text-[var(--pixel-text)]"
+          >
+            複製 PNG 到剪貼簿
           </button>
           <button
             type="button"
@@ -227,6 +240,10 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
 
   const posterFilename = `bullet-plan-week${report.week}-poster.png`;
 
+  useEffect(() => {
+    shareBlobRef.current = null;
+  }, [profile?.aiCharacterUrl, companion?.species, companion?.name, report.id]);
+
   const ensurePosterBlob = async () => {
     if (shareBlobRef.current) return shareBlobRef.current;
     if (!posterRef.current) throw new Error("戰報尚未準備好");
@@ -241,21 +258,6 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
     link.href = URL.createObjectURL(blob);
     link.click();
     URL.revokeObjectURL(link.href);
-  };
-
-  const tryNativeShare = async (blob: Blob) => {
-    if (typeof navigator.share !== "function") return false;
-
-    const text = getShareText(report);
-    const file = new File([blob], posterFilename, { type: "image/png" });
-    const withImage: ShareData = { title: "週冒險戰報", text, files: [file] };
-
-    if (typeof navigator.canShare === "function" && !navigator.canShare(withImage)) {
-      return false;
-    }
-
-    await navigator.share(withImage);
-    return true;
   };
 
   const handleDownload = async () => {
@@ -273,12 +275,11 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
     setSharing(true);
     try {
       const blob = await ensurePosterBlob();
-      const shared = await tryNativeShare(blob);
-      if (!shared) {
-        setShareOpen(true);
-      }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
+      const result = await sharePosterPng(blob, posterFilename, report);
+      if (result === "shared") return;
+      if (result === "cancelled") return;
+      setShareOpen(true);
+    } catch {
       setShareOpen(true);
     } finally {
       setSharing(false);
@@ -289,18 +290,29 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
     setSharing(true);
     try {
       const blob = await ensurePosterBlob();
-      const shared = await tryNativeShare(blob);
-      if (!shared) {
-        alert("此裝置無法開啟系統分享，請改用複製文字或下載圖片。");
-      } else {
+      const result = await sharePosterPng(blob, posterFilename, report);
+      if (result === "shared") {
         setShareOpen(false);
+        return;
       }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      alert("分享失敗，請改用複製文字或下載圖片。");
+      if (result === "cancelled") return;
+      alert("此裝置無法開啟系統分享，請改用「複製 PNG」或下載圖片。");
+    } catch {
+      alert("分享失敗，請改用「複製 PNG」或下載圖片。");
     } finally {
       setSharing(false);
     }
+  };
+
+  const handleCopyImage = async () => {
+    const blob = await ensurePosterBlob();
+    const copied = await copyPosterPngToClipboard(blob);
+    if (copied) {
+      alert("戰報 PNG 已複製！可貼到 LINE、訊息或其他 App。");
+      setShareOpen(false);
+      return;
+    }
+    alert("此瀏覽器無法複製圖片，請改用「分享 PNG 到其他 App」或下載圖片。");
   };
 
   const handleCopyText = async () => {
@@ -319,7 +331,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
     <div className="space-y-3">
       <div
         ref={posterRef}
-        className="rounded-3xl border-[3px] p-5 sm:p-6"
+        className="weekly-poster rounded-3xl border-[3px] p-5 sm:p-6"
         style={{
           borderColor: POSTER_COLORS.goldDark,
           background: POSTER_COLORS.posterGradient,
@@ -417,7 +429,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
             🏠 本週冒險小隊
           </p>
 
-          <div style={POSTER_SQUAD_FLEX_STYLE}>
+          <div className="weekly-poster-squad" style={POSTER_SQUAD_FLEX_STYLE}>
             <div style={posterSquadColumnStyle(POSTER_CHARACTER_SIZE)}>
               <PosterPill
                 label="隊長"
@@ -589,7 +601,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
           disabled={sharing}
           className="pixel-btn flex-1 border-4 border-[var(--pixel-border)] bg-[var(--pixel-mp)] px-4 py-2 text-label text-white disabled:opacity-60"
         >
-          {sharing ? "準備中..." : "分享戰報"}
+          {sharing ? "準備中..." : "分享 PNG"}
         </button>
       </div>
 
@@ -598,6 +610,7 @@ export function WeeklyPoster({ report }: WeeklyPosterProps) {
         sharing={sharing}
         onClose={() => setShareOpen(false)}
         onNativeShare={handleSheetNativeShare}
+        onCopyImage={handleCopyImage}
         onCopyText={handleCopyText}
         onDownloadImage={handleSheetDownload}
       />

@@ -1,3 +1,5 @@
+import { embedPosterImages } from "@/lib/poster/embed-images";
+
 function collectPosterImageUrls(element: HTMLElement): string[] {
   const urls = new Set<string>();
 
@@ -26,6 +28,7 @@ async function preloadImages(urls: string[]) {
 
 export async function capturePosterPng(element: HTMLElement): Promise<Blob> {
   await preloadImages(collectPosterImageUrls(element));
+  await embedPosterImages(element);
 
   const html2canvas = (await import("html2canvas")).default;
   const { sanitizePosterClone } = await import("@/lib/poster/html2canvas");

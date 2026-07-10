@@ -86,21 +86,26 @@ export function posterNameStyle() {
   };
 }
 
-export const POSTER_SQUAD_FLEX_STYLE = {
-  display: "flex" as const,
-  justifyContent: "center" as const,
-  alignItems: "flex-end" as const,
-  gap: 20,
-  margin: "0 auto",
-};
-
 export function posterSquadColumnStyle(width: number) {
   return {
     width,
+    minWidth: width,
+    maxWidth: width,
     textAlign: "center" as const,
     flexShrink: 0,
   };
 }
+
+export const POSTER_SQUAD_FLEX_STYLE = {
+  display: "flex" as const,
+  justifyContent: "center" as const,
+  alignItems: "flex-end" as const,
+  flexWrap: "nowrap" as const,
+  gap: 12,
+  margin: "0 auto",
+  maxWidth: "100%",
+  overflow: "visible" as const,
+};
 
 export const POSTER_MEDAL_TEXT_WRAP_STYLE = {
   width: "100%",

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { AuthUser } from "@/lib/auth/types";
 import { exportUserDataBundle, importUserDataBundle, clearLocalUserData } from "@/lib/sync/bundle";
+import { bootstrapStores, resetAllStores } from "@/lib/stores/bootstrap";
 import { setActiveUserId, resetActiveUserId } from "@/lib/repositories";
 import { getDeviceId } from "@/lib/device-id";
 
@@ -60,6 +61,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ user: data.user });
     setActiveUserId(data.user.id);
     await get().pullFromServer();
+    await bootstrapStores();
   },
 
   register: async (email, password, displayName) => {
@@ -106,6 +108,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     });
     await clearLocalUserData();
     resetActiveUserId();
+    resetAllStores();
     set({ user: null, lastSyncedAt: null });
   },
 

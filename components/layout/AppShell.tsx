@@ -22,7 +22,10 @@ export function AppShell({ children }: AppShellProps) {
               <span className="game-banner-icon float-gentle" aria-hidden>
                 ⚔️
               </span>
-              <h1 className="game-banner-title">人生冒險遊戲</h1>
+              <h1 className="game-banner-title">
+                <span className="game-banner-title-short">人生冒險</span>
+                <span className="game-banner-title-long">人生冒險遊戲</span>
+              </h1>
             </div>
             <AuthMenu />
           </div>

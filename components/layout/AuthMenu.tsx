@@ -13,24 +13,37 @@ export function AuthMenu() {
   const syncLabel = syncing ? "同步中..." : lastSyncedAt ? "已同步" : "同步";
 
   return (
-    <div className="flex flex-wrap justify-end gap-1 sm:gap-1.5 shrink-0 max-w-[58%] sm:max-w-none">
-      <HeaderActionLink href="/settings">設定</HeaderActionLink>
-        {user && (
-          <>
-            <HeaderActionButton
-              onClick={() => void pushToServer()}
-              disabled={syncing}
-              className={syncing ? "opacity-70" : ""}
-            >
-              {syncLabel}
-            </HeaderActionButton>
-            <HeaderActionButton
-              onClick={() => void logout().then(() => window.location.assign("/login"))}
-            >
-              登出
-            </HeaderActionButton>
-          </>
-        )}
+    <div className="game-banner-actions">
+      <HeaderActionLink href="/settings" aria-label="設定">
+        <span className="sm:hidden" aria-hidden>
+          ⚙️
+        </span>
+        <span className="hidden sm:inline">設定</span>
+      </HeaderActionLink>
+      {user && (
+        <>
+          <HeaderActionButton
+            onClick={() => void pushToServer()}
+            disabled={syncing}
+            className={syncing ? "opacity-70" : ""}
+            aria-label={syncLabel}
+          >
+            <span className="sm:hidden" aria-hidden>
+              {syncing ? "…" : lastSyncedAt ? "✓" : "↻"}
+            </span>
+            <span className="hidden sm:inline">{syncLabel}</span>
+          </HeaderActionButton>
+          <HeaderActionButton
+            onClick={() => void logout().then(() => window.location.assign("/login"))}
+            aria-label="登出"
+          >
+            <span className="sm:hidden" aria-hidden>
+              出
+            </span>
+            <span className="hidden sm:inline">登出</span>
+          </HeaderActionButton>
+        </>
+      )}
     </div>
   );
 }
